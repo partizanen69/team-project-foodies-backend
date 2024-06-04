@@ -1,7 +1,6 @@
 import UserModel from '../db/users.model.js';
 import toHttpError from '../helpers/HttpError.js';
 import { compareHash, createToken } from '../helpers/auth.js';
-import { sendVerificationEmail } from '../services/emailService.js';
 import * as userService from '../services/usersServices.js';
 import { toController } from '../utils/api.js';
 
@@ -17,11 +16,6 @@ const registerUser = async (req, res) => {
   }
 
   const newUser = await userService.createUser({ email, password });
-
-  await sendVerificationEmail({
-    emailTo: newUser.email,
-    verificationToken: newUser.verificationToken,
-  });
 
   res.status(201).json({
     user: {
@@ -107,28 +101,6 @@ const verifyUserEmail = async (req, res) => {
   });
 };
 
-const resendVerificationEmail = async (req, res) => {
-  const { email } = req.body;
-
-  const user = await UserModel.findOne({ email });
-  if (!user) {
-    throw toHttpError(404, `User with email: ${email} not found`);
-  }
-
-  if (user.verify) {
-    throw toHttpError(400, 'Verification has already been passed');
-  }
-
-  await sendVerificationEmail({
-    emailTo: email,
-    verificationToken: user.verificationToken,
-  });
-
-  res.status(200).json({
-    message: 'Verification email sent',
-  });
-};
-
 export default {
   registerUser: toController(registerUser),
   loginUser: toController(loginUser),
@@ -136,5 +108,4 @@ export default {
   getCurrentUser: toController(getCurrentUser),
   updateAvatar: toController(updateAvatar),
   verifyUserEmail: toController(verifyUserEmail),
-  resendVerificationEmail: toController(resendVerificationEmail),
 };

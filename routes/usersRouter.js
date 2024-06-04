@@ -35,10 +35,4 @@ usersRouter.patch(
 
 usersRouter.get('/verify/:verificationToken', userControllers.verifyUserEmail);
 
-usersRouter.post(
-  '/verify',
-  validateBody(resendVerificationEmailSchema),
-  userControllers.resendVerificationEmail
-);
-
 export default usersRouter;
