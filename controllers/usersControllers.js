@@ -5,22 +5,19 @@ import * as userService from '../services/usersServices.js';
 import { toController } from '../utils/api.js';
 
 const registerUser = async (req, res) => {
-  const { email, password } = req.body;
+  const { name, email, password } = req.body;
 
   const existingUser = await UserModel.findOne({ email });
   if (existingUser) {
-    res.status(409).json({
-      message: 'Email in use',
-    });
-    return;
+    throw toHttpError(409, 'Email in use');
   }
 
-  const newUser = await userService.createUser({ email, password });
+  const newUser = await userService.createUser({ name, email, password });
 
   res.status(201).json({
     user: {
+      name: newUser.name,
       email: newUser.email,
-      subscription: newUser.subscription,
     },
   });
 };
@@ -33,13 +30,9 @@ const loginUser = async (req, res) => {
     throw toHttpError(401, 'Email or password invalid');
   }
 
-  const isSamePassword = await compareHash(password, user.password);
-  if (!isSamePassword) {
+  const isPasswordCorrect = await compareHash(password, user.password);
+  if (!isPasswordCorrect) {
     throw toHttpError(401, 'Email or password invalid');
-  }
-
-  if (!user.verify) {
-    throw toHttpError(401, 'You can not login until you confirm your email');
   }
 
   const token = createToken({
@@ -49,10 +42,7 @@ const loginUser = async (req, res) => {
 
   res.json({
     token,
-    user: {
-      email: user.email,
-      subscription: user.subscription,
-    },
+    user: { name: user.name, email: user.email },
   });
 };
 

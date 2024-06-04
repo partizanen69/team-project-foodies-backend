@@ -3,7 +3,7 @@ import multer from 'multer';
 import toHttpError from '../HttpError.js';
 
 const destination = path.resolve('tmp');
-console.log('dest', destination);
+const allowedFileExtensions = ['jpg', 'jpeg', 'png'];
 
 const storage = multer.diskStorage({
   destination,
@@ -16,8 +16,8 @@ const storage = multer.diskStorage({
 
 const fileFilter = (req, file, callback) => {
   const extension = file.originalname.split('.').pop();
-  if (extension === 'exe') {
-    return callback(toHttpError(400, '.exe extension not allow'));
+  if (extension === 'exe' || !allowedFileExtensions.includes(extension)) {
+    return callback(toHttpError(400, 'Invalid file type'));
   }
   callback(null, true);
 };

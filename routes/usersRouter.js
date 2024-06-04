@@ -1,6 +1,9 @@
 import express from 'express';
 import userControllers from '../controllers/usersControllers.js';
-import { registerUserSchema } from '../schemas/usersSchemas.js';
+import {
+  loginUserSchema,
+  registerUserSchema,
+} from '../schemas/usersSchemas.js';
 import authenticate from '../helpers/middlewares/authenticate.js';
 import upload from '../helpers/middlewares/upload.js';
 import { validateIncomingPayload } from '../helpers/middlewares/validate.middleware.js';
@@ -15,7 +18,7 @@ usersRouter.post(
 
 usersRouter.post(
   '/login',
-  validateIncomingPayload(registerUserSchema),
+  validateIncomingPayload(loginUserSchema),
   userControllers.loginUser
 );
 

@@ -1,21 +1,17 @@
 import UserModel from '../db/users.model.js';
-import fsPromises from 'fs/promises';
 import bcrypt from 'bcrypt';
-import path from 'path';
-import * as gravatar from 'gravatar';
-import jimp from 'jimp';
-import { nanoid } from 'nanoid';
 
-export const createUser = async ({ email, password }) => {
+import { generateAvatar, processAvatar } from '../helpers/processImage.js';
+
+export const createUser = async ({ name, email, password }) => {
   const hashPassword = await bcrypt.hash(password, 10);
+  const avatarURL = generateAvatar(email);
 
   return UserModel.create({
+    name,
     email,
     password: hashPassword,
-    avatarURL: gravatar.url(email, {
-      protocol: 'https',
-    }),
-    verificationToken: nanoid(),
+    avatarURL,
   });
 };
 
@@ -24,15 +20,9 @@ export const updateUserById = (id, updatePayload) => {
 };
 
 export const updateAvatar = async ({ filePath, userId }) => {
-  const extension = filePath.split('.').pop();
-  const relativePath = `avatars/${userId}-avatar.${extension}`;
-  const userAvatarPath = path.resolve(`public/${relativePath}`);
+  const avatarURL = await processAvatar(filePath, userId);
 
-  const jimpImgObject = await jimp.read(filePath);
-  await jimpImgObject.resize(250, 250).write(userAvatarPath);
+  await updateUserById(userId, { avatarURL });
 
-  await updateUserById(userId, { avatarURL: relativePath });
-  await fsPromises.unlink(filePath);
-
-  return relativePath;
+  return avatarURL;
 };
