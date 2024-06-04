@@ -1,24 +1,21 @@
 import express from 'express';
-import validateBody from '../helpers/middlewares/validateBody.js';
 import userControllers from '../controllers/usersControllers.js';
-import {
-  registerUserSchema,
-  resendVerificationEmailSchema,
-} from '../schemas/usersSchemas.js';
+import { registerUserSchema } from '../schemas/usersSchemas.js';
 import authenticate from '../helpers/middlewares/authenticate.js';
 import upload from '../helpers/middlewares/upload.js';
+import { validateIncomingPayload } from '../helpers/middlewares/validate.middleware.js';
 
 const usersRouter = express.Router();
 
 usersRouter.post(
   '/register',
-  validateBody(registerUserSchema),
+  validateIncomingPayload(registerUserSchema),
   userControllers.registerUser
 );
 
 usersRouter.post(
   '/login',
-  validateBody(registerUserSchema),
+  validateIncomingPayload(registerUserSchema),
   userControllers.loginUser
 );
 
