@@ -1,11 +1,14 @@
 import toHttpError from '../HttpError.js';
 
-const Prop = {
+export const ValidateProp = {
   body: 'body',
   query: 'query',
 };
 
-export const validateIncomingPayload = (schema, bodyOrQuery = Prop.body) => {
+export const validateIncomingPayload = (
+  schema,
+  bodyOrQuery = ValidateProp.body
+) => {
   const func = (req, _, next) => {
     const { error } = schema.validate(req[bodyOrQuery]);
     if (error) {
