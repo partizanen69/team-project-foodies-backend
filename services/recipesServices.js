@@ -1,5 +1,17 @@
 import Recipe from '../db/recipe.model.js';
 
-const recipeList = () => Recipe.find();
+export const getRecipes = async ({ page, limit, category, area }) => {
+  const recipes = await Recipe.find({
+    ...(category ? { category } : null),
+    ...(area ? { area } : null),
+  })
+    .skip((page - 1) * limit)
+    .limit(limit);
 
-export default { recipeList };
+  return recipes;
+};
+
+export const getAllRecipesCount = async () => {
+  const count = await Recipe.countDocuments();
+  return Number(count);
+};
