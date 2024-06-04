@@ -34,9 +34,12 @@ const recipeSchema = new Schema(
       type: String,
       required: [true, 'Time is required'],
     },
-    ingredients: {
-      type: Schema.Types.Array,
-    },
+    ingredients: [
+      {
+        id: String,
+        measure: String,
+      },
+    ],
   },
   { versionKey: false, timestamps: true }
 );
