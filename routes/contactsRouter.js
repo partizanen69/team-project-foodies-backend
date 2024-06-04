@@ -1,22 +1,46 @@
-import express from "express";
+import express from 'express';
+import contactsControllers from '../controllers/contactsControllers.js';
+import validateBody from '../helpers/middlewares/validateBody.js';
 import {
-  getAllContacts,
-  getOneContact,
-  deleteContact,
-  createContact,
-  updateContact,
-} from "../controllers/contactsControllers.js";
+  createContactSchema,
+  updateContactSchema,
+  updateFavoriteSchema,
+} from '../schemas/contactsSchemas.js';
+import isValidMongoId from '../helpers/middlewares/isValidObjectId.js';
+import authenticate from '../helpers/middlewares/authenticate.js';
 
 const contactsRouter = express.Router();
 
-contactsRouter.get("/", getAllContacts);
+contactsRouter.use(authenticate);
 
-contactsRouter.get("/:id", getOneContact);
+contactsRouter.get('/', contactsControllers.getAllContacts);
 
-contactsRouter.delete("/:id", deleteContact);
+contactsRouter.get('/:id', isValidMongoId, contactsControllers.getOneContact);
 
-contactsRouter.post("/", createContact);
+contactsRouter.delete(
+  '/:id',
+  isValidMongoId,
+  contactsControllers.deleteContact
+);
 
-contactsRouter.put("/:id", updateContact);
+contactsRouter.post(
+  '/',
+  validateBody(createContactSchema),
+  contactsControllers.createContact
+);
+
+contactsRouter.put(
+  '/:id',
+  isValidMongoId,
+  validateBody(updateContactSchema),
+  contactsControllers.updateContact
+);
+
+contactsRouter.patch(
+  '/:id/favorite',
+  isValidMongoId,
+  validateBody(updateFavoriteSchema),
+  contactsControllers.updateStatusContact
+);
 
 export default contactsRouter;
