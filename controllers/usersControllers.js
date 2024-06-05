@@ -69,10 +69,11 @@ const getUserDetails = async (req, res) => {
   }
 
   let result;
-  if (targetUserId === req.user._id) {
-    result = await userService.getUserById(req.user._id, false);
-  } else {
+
+  if (targetUserId === req.user._id.toString()) {
     result = await userService.getUserById(req.user._id, true);
+  } else {
+    result = await userService.getUserById(targetUserId, false);
   }
 
   if (!result) {
