@@ -1,37 +1,43 @@
 import { Schema, model } from 'mongoose';
+import { handleSaveError, setUpdateOptions } from './hooks.js';
 
 const userSchema = new Schema(
   {
-    password: {
+    name: {
       type: String,
-      required: [true, 'Password is required'],
+      required: [true, 'Name is required'],
     },
     email: {
       type: String,
       required: [true, 'Email is required'],
       unique: true,
     },
-    subscription: {
+    password: {
       type: String,
-      enum: ['starter', 'pro', 'business'],
-      default: 'starter',
+      required: [true, 'Password is required'],
     },
     token: {
       type: String,
       default: null,
     },
     avatarURL: String,
-    verify: {
-      type: Boolean,
-      default: false,
+    followers: {
+      type: [{ type: Schema.Types.ObjectId, ref: 'users' }],
+      default: [],
     },
-    verificationToken: {
-      type: String,
-      required: [true, 'Verify token is required'],
+    following: {
+      type: [{ type: Schema.Types.ObjectId, ref: 'users' }],
+      default: [],
     },
   },
   { versionKey: false, timestamps: true }
 );
+
+userSchema.post('save', handleSaveError);
+
+userSchema.pre('findOneAndUpdate', setUpdateOptions);
+
+userSchema.post('findOneAndUpdate', handleSaveError);
 
 const UserModel = model('users', userSchema);
 
