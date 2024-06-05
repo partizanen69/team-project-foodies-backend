@@ -4,6 +4,7 @@ import cors from 'cors';
 import mongoose from 'mongoose';
 import 'dotenv/config';
 
+import categoriesRouter from './routes/categoriesRouter.js';
 import usersRouter from './routes/usersRouter.js';
 import recipesRouter from './routes/recipesRouter.js';
 
@@ -18,6 +19,7 @@ app.use(express.static('public'));
 
 app.use('/api/users', usersRouter);
 app.use('/api/recipes', recipesRouter);
+app.use('/api/categories', categoriesRouter);
 
 app.use((_, res) => {
   res.status(404).json({ message: 'Route not found' });
