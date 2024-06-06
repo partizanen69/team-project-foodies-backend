@@ -15,14 +15,14 @@ export const generateAvatar = email => {
   return avatarURL;
 };
 
-const adjustImage = async imagePath => {
+const adjustImage = async (imagePath, imageSize) => {
   try {
     const jimpImgObject = await Jimp.read(imagePath);
 
     await jimpImgObject
       .cover(
-        250,
-        250,
+        imageSize,
+        imageSize,
         Jimp.HORIZONTAL_ALIGN_CENTER | Jimp.VERTICAL_ALIGN_MIDDLE
       )
       .write(imagePath);
@@ -31,15 +31,18 @@ const adjustImage = async imagePath => {
   }
 };
 
-export const processAvatar = async (tmpPath, userId) => {
+export const processImage = async (tmpPath, identifier, imageType) => {
+  console.log(tmpPath);
   const extension = tmpPath.split('.').pop();
-  const relativePath = `avatars/${userId}-avatar.${extension}`;
+  const relativePath = `${imageType}s/${identifier}-${imageType}.${extension}`;
 
   const imagePath = path.join(publicDir, relativePath);
 
   await fs.rename(tmpPath, imagePath);
 
-  await adjustImage(imagePath);
+  const imageSize = imageType === 'avatar' ? 250 : 550;
+
+  await adjustImage(imagePath, imageSize);
 
   return relativePath;
 };
