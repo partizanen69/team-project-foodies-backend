@@ -19,6 +19,12 @@ recipesRouter.get(
   recipesController.getRecipes
 );
 
+recipesRouter.get(
+  '/my',
+  authenticate,
+  recipesController.getMyRecipes
+);
+
 recipesRouter.post(
   '/',
   authenticate,
