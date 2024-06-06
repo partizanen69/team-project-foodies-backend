@@ -8,3 +8,13 @@ export const toController = func => {
     }
   };
 };
+
+export const getPagination = requestQuery => {
+  if (!('page' in requestQuery) && !('limit' in requestQuery)) {
+    return {};
+  }
+
+  const { page = 1, limit = 200 } = requestQuery;
+  const skip = (page - 1) * limit;
+  return { skip, limit };
+};

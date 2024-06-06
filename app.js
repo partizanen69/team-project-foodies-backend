@@ -4,8 +4,10 @@ import cors from 'cors';
 import mongoose from 'mongoose';
 import 'dotenv/config';
 
+import categoriesRouter from './routes/categoriesRouter.js';
 import usersRouter from './routes/usersRouter.js';
 import recipesRouter from './routes/recipesRouter.js';
+import areasRouter from './routes/areasRouter.js';
 
 const { DB_CONNECTION_STRING, PORT = 3000 } = process.env;
 
@@ -18,6 +20,8 @@ app.use(express.static('public'));
 
 app.use('/api/users', usersRouter);
 app.use('/api/recipes', recipesRouter);
+app.use('/api/categories', categoriesRouter);
+app.use('/api/areas', areasRouter);
 
 app.use((_, res) => {
   res.status(404).json({ message: 'Route not found' });
