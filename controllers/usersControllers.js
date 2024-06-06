@@ -62,11 +62,7 @@ const getCurrentUser = (req, res) => {
 };
 
 const getUserDetails = async (req, res) => {
-  const targetUserId = req.query.userId;
-
-  if (!targetUserId) {
-    throw toHttpError(400, 'User ID is required');
-  }
+  const targetUserId = req.params.id;
 
   let result;
 
