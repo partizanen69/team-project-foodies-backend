@@ -31,9 +31,10 @@ const adjustImage = async imagePath => {
   }
 };
 
-export const processAvatar = async (tmpPath, userId) => {
+export const processImage = async (tmpPath, identifier, imageType) => {
+  console.log(tmpPath);
   const extension = tmpPath.split('.').pop();
-  const relativePath = `avatars/${userId}-avatar.${extension}`;
+  const relativePath = `${imageType}s/${identifier}-${imageType}.${extension}`;
 
   const imagePath = path.join(publicDir, relativePath);
 
