@@ -42,7 +42,7 @@ const loginUser = async (req, res) => {
 
   res.json({
     token,
-    user: { name: user.name, email: user.email },
+    user: { name: user.name, email: user.email, avatarURL: user.avatarURL },
   });
 };
 
@@ -53,10 +53,35 @@ const logoutUser = async (req, res) => {
 };
 
 const getCurrentUser = (req, res) => {
-  const { email, subscription } = req.user;
+  const { name, email, avatarURL } = req.user;
   res.status(200).json({
+    name,
     email,
-    subscription,
+    avatarURL,
+  });
+};
+
+const getUserDetails = async (req, res) => {
+  const targetUserId = req.query.userId;
+
+  if (!targetUserId) {
+    throw toHttpError(400, 'User ID is required');
+  }
+
+  let result;
+
+  if (targetUserId === req.user._id.toString()) {
+    result = await userService.getUserById(req.user._id, true);
+  } else {
+    result = await userService.getUserById(targetUserId, false);
+  }
+
+  if (!result) {
+    throw toHttpError(404, 'User not found');
+  }
+
+  res.status(200).json({
+    result,
   });
 };
 
@@ -69,25 +94,9 @@ const updateAvatar = async (req, res) => {
     filePath: req.file.path,
     userId: req.user.id,
   });
+
   res.status(200).json({
     avatarURL: avatarRelativePath,
-  });
-};
-
-const verifyUserEmail = async (req, res) => {
-  const verificationToken = req.params.verificationToken;
-  const user = await UserModel.findOne({ verificationToken });
-  if (!user) {
-    throw toHttpError(404, 'User not found');
-  }
-
-  await userService.updateUserById(user.id, {
-    verificationToken: null,
-    verify: true,
-  });
-
-  res.status(200).json({
-    message: 'Verification successful',
   });
 };
 
@@ -97,5 +106,5 @@ export default {
   logoutUser: toController(logoutUser),
   getCurrentUser: toController(getCurrentUser),
   updateAvatar: toController(updateAvatar),
-  verifyUserEmail: toController(verifyUserEmail),
+  getUserDetails: toController(getUserDetails),
 };

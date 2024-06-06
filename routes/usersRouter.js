@@ -26,13 +26,13 @@ usersRouter.post('/logout', authenticate, userControllers.logoutUser);
 
 usersRouter.get('/current', authenticate, userControllers.getCurrentUser);
 
+usersRouter.get('/user-details', authenticate, userControllers.getUserDetails);
+
 usersRouter.patch(
   '/avatars',
   authenticate,
   upload.single('avatar'),
   userControllers.updateAvatar
 );
-
-usersRouter.get('/verify/:verificationToken', userControllers.verifyUserEmail);
 
 export default usersRouter;

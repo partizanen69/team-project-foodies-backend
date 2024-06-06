@@ -21,6 +21,10 @@ const userSchema = new Schema(
       default: null,
     },
     avatarURL: String,
+    favorites: {
+      type: [{ type: Schema.Types.ObjectId, ref: 'recipes' }],
+      default: [],
+    },
     followers: {
       type: [{ type: Schema.Types.ObjectId, ref: 'users' }],
       default: [],
