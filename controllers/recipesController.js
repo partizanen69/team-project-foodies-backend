@@ -1,3 +1,5 @@
+import path from 'path';
+import fs from "fs/promises";
 import * as recipesServices from '../services/recipesServices.js';
 import { toController } from '../utils/api.js';
 
@@ -28,6 +30,31 @@ const getRecipes = async (req, res) => {
   });
 };
 
+const recipeImagesPath = path.resolve("public", "recipeImages");
+
+const addRecipe = async (req, res) => {
+  const recipeData = req.body;
+  /* const parsedIngredients = JSON.parse(recipeData.ingredients); */
+
+  const { _id: owner } = req.user;
+  const { path: oldPath, filename } = req.file;
+
+  const newPath = path.join(recipeImagesPath, filename);
+  await fs.rename(oldPath, newPath);
+
+  const thumb = path.join("public", "recipeImages", filename); 
+
+  const result = await recipesServices.createRecipe({
+    ...recipeData,
+    /* ingredients: parsedIngredients, */
+    thumb,
+    owner,
+  });
+
+  res.status(201).json(result);
+}
+
 export default {
   getRecipes: toController(getRecipes),
+  addRecipe: toController(addRecipe),
 };

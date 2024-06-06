@@ -6,3 +6,14 @@ export const getAllRecipesSchema = Joi.object({
   category: Joi.string(),
   area: Joi.string(),
 });
+
+export const addRecipeSchema = Joi.object({
+  title: Joi.string().required(),
+  category: Joi.string().required(),
+  area: Joi.string().required(),
+  instructions: Joi.string().required(),
+  description: Joi.string().required(),
+  time: Joi.string().required(),
+  ingredients: Joi.array().required(),
+});
+
