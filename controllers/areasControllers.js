@@ -1,15 +1,11 @@
 import areasServices from '../services/areasServices.js';
-import { toController } from '../utils/api.js';
+import { toController, getPagination } from '../utils/api.js';
+import { minusTimestamps } from '../utils/constants.js';
 
 const getAreas = async (req, res, next) => {
-  const fields = '-createdAt -updatedAt';
-  const { page = 1, limit = 200 } = req.query;
-  const skip = (page - 1) * limit;
-  const settings = { skip, limit };
-
   const areas = await areasServices.listAreas({
-    fields,
-    settings,
+    fields: minusTimestamps,
+    settings: getPagination(req.query),
   });
 
   res.status(200).json(areas);
