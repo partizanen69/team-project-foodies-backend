@@ -7,6 +7,7 @@ import {
 import authenticate from '../helpers/middlewares/authenticate.js';
 import upload from '../helpers/middlewares/upload.js';
 import { validateIncomingPayload } from '../helpers/middlewares/validate.middleware.js';
+import isValidMongoId from '../helpers/middlewares/isValidObjectId.js';
 
 const usersRouter = express.Router();
 
@@ -26,7 +27,12 @@ usersRouter.post('/logout', authenticate, userControllers.logoutUser);
 
 usersRouter.get('/current', authenticate, userControllers.getCurrentUser);
 
-usersRouter.get('/user-details', authenticate, userControllers.getUserDetails);
+usersRouter.get(
+  '/user-details/:id',
+  authenticate,
+  isValidMongoId,
+  userControllers.getUserDetails
+);
 
 usersRouter.patch(
   '/avatars',
