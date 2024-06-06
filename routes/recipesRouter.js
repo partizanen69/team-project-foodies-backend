@@ -28,5 +28,10 @@ recipesRouter.post(
   recipesController.addRecipe
 );
 
+recipesRouter.patch(
+  '/:id/like',
+  authenticate,
+  recipesController.likeRecipe
+);
 
 export default recipesRouter;

@@ -1,6 +1,7 @@
 import path from 'path';
 import fs from "fs/promises";
 import * as recipesServices from '../services/recipesServices.js';
+import * as favoriteServices from '../services/favoriteServices.js';
 import { toController } from '../utils/api.js';
 
 const getRecipes = async (req, res) => {
@@ -54,7 +55,16 @@ const addRecipe = async (req, res) => {
   res.status(201).json(result);
 }
 
+const likeRecipe = async (req, res, next) => {
+  const { _id: user } = req.user;
+  const { id } = req.params;
+  const filter = { recipe: id, user };
+  const recipe = await favoriteServices.addFavorite(filter);
+  res.status(201).json(recipe);
+};
+
 export default {
   getRecipes: toController(getRecipes),
   addRecipe: toController(addRecipe),
+  likeRecipe: toController(likeRecipe)
 };
