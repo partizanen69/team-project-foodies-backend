@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt';
 
 import UserModel from '../db/users.model.js';
 import Recipe from '../db/recipe.model.js';
-import { generateAvatar, processAvatar } from '../helpers/processImage.js';
+import { generateAvatar, processImage } from '../helpers/processImage.js';
 
 export const createUser = async ({ name, email, password }) => {
   const hashPassword = await bcrypt.hash(password, 10);
@@ -47,7 +47,7 @@ export const updateUserById = (id, updatePayload) => {
 };
 
 export const updateAvatar = async ({ filePath, userId }) => {
-  const avatarURL = await processAvatar(filePath, userId);
+  const avatarURL = await processImage(filePath, userId, 'avatar');
 
   await updateUserById(userId, { avatarURL });
 

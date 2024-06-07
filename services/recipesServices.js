@@ -15,3 +15,8 @@ export const getAllRecipesCount = async () => {
   const count = await Recipe.countDocuments();
   return Number(count);
 };
+
+export const createRecipe = async(data) => {
+  const recipe = await Recipe.create(data);
+  return recipe;
+};
