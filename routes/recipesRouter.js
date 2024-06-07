@@ -35,11 +35,15 @@ recipesRouter.post(
   recipesController.addRecipe
 );
 
+recipesRouter.get(
+  '/popular',
+  recipesController.getPopularRecipes
+);
+
 recipesRouter.delete(
   '/:id',
   authenticate,
   recipesController.deleteRecipe
 );
-
 
 export default recipesRouter;
