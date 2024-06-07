@@ -29,6 +29,37 @@ export const createRecipe = async(data) => {
   return recipe;
 };
 
+export const getPopularRecipes = async () => {
+  const popularRecipes = await Recipe.aggregate([
+    {
+      $lookup: {
+        from: "users",
+        localField: "_id",
+        foreignField: "favorites",
+        as: "favoritedBy",
+      },
+    },
+    {
+      $addFields: {
+        popularity: { $size: "$favoritedBy" },
+      },
+    },
+    {
+      $sort: { popularity: -1 },
+    },
+    {
+      $limit: 10,  
+    },
+    {
+      $project: {
+        favoritedBy: 0,
+        popularity: 0,
+      },
+    },
+  ]);
+  return popularRecipes;
+};
+
 export const getMyRecipes = async ({ page, limit, category, area, ingredients, owner }) => {
   const recipes = await Recipe.find({
     ...(category ? { category } : null),
@@ -41,3 +72,4 @@ export const getMyRecipes = async ({ page, limit, category, area, ingredients, o
 
   return recipes;
 };
+

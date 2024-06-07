@@ -87,8 +87,14 @@ const getMyRecipes = async (req, res) => {
   });
 };
 
+const getPopularRecipes = async (req, res) => {
+    const popularRecipes = await recipesServices.getPopularRecipes();
+    res.status(200).json(popularRecipes);
+};
+
 export default {
   getRecipes: toController(getRecipes),
   addRecipe: toController(addRecipe),
+  getPopularRecipes: toController(getPopularRecipes),
   getMyRecipes: toController(getMyRecipes),
 };
