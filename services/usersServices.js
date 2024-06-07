@@ -46,6 +46,12 @@ export const getOneUser = filter => {
   return UserModel.findOne(filter);
 };
 
+export const getManyUsersById = idList => {
+  return UserModel.find({ _id: { $in: idList } }).select(
+    'name email avatarURL favorites followers following '
+  );
+};
+
 export const updateUserById = (id, updatePayload) => {
   return UserModel.updateOne({ _id: id }, updatePayload);
 };

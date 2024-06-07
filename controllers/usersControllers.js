@@ -97,16 +97,20 @@ const updateAvatar = async (req, res) => {
   });
 };
 
-const getFollowers = (req, res) => {
+const getFollowers = async (req, res) => {
   const user = req.user;
 
-  res.status(200).json({ followers: user.followers });
+  const followers = await userService.getManyUsersById(user.followers);
+
+  res.status(200).json({ followers });
 };
 
-const getFollowing = (req, res) => {
+const getFollowing = async (req, res) => {
   const user = req.user;
 
-  res.status(200).json({ following: user.following });
+  const following = await userService.getManyUsersById(user.following);
+
+  res.status(200).json({ following });
 };
 
 const addFollowing = async (req, res) => {
