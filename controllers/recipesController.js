@@ -55,12 +55,8 @@ const addRecipe = async (req, res) => {
 }
 
 const getPopularRecipes = async (req, res) => {
-  try {
     const popularRecipes = await recipesServices.getPopularRecipes();
     res.status(200).json(popularRecipes);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
 };
 
 export default {

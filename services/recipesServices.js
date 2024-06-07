@@ -42,6 +42,12 @@ export const getPopularRecipes = async () => {
     {
       $limit: 10,  
     },
+    {
+      $project: {
+        favoritedBy: 0,
+        popularity: 0,
+      },
+    },
   ]);
   return popularRecipes;
 };
