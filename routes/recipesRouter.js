@@ -3,12 +3,16 @@ import recipesController from '../controllers/recipesController.js';
 import {
   ValidateProp,
   validateIncomingPayload,
+  valdateAddFavoriteRecipe
 } from '../helpers/middlewares/validate.middleware.js';
 import authenticate from '../helpers/middlewares/authenticate.js';
 import upload from '../helpers/middlewares/upload.js';
 import isEmptyBody from '../helpers/middlewares/isEmptyBody.js';
-import { getAllRecipesSchema } from '../schemas/recipeSchemas.js';
-import { addRecipeSchema } from '../schemas/recipeSchemas.js';
+import { 
+  getAllRecipesSchema, 
+  addRecipeSchema, 
+  addFavoriteRecipeSchema 
+} from '../schemas/recipeSchemas.js';
 
 
 const recipesRouter = express.Router();
@@ -28,10 +32,12 @@ recipesRouter.post(
   recipesController.addRecipe
 );
 
-recipesRouter.patch(
-  '/:id/like',
+recipesRouter.post(
+  '/:id/favorites',
   authenticate,
-  recipesController.likeRecipe
+  validateIncomingPayload(addFavoriteRecipeSchema, ValidateProp.body),
+  valdateAddFavoriteRecipe,
+  recipesController.addFavoriteRecipe
 );
 
 export default recipesRouter;
