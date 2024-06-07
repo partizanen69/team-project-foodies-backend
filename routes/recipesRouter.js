@@ -10,6 +10,7 @@ import upload from '../helpers/middlewares/upload.js';
 import isEmptyBody from '../helpers/middlewares/isEmptyBody.js';
 import { 
   getAllRecipesSchema, 
+  getMyRecipesSchema,
   addRecipeSchema, 
   addFavoriteRecipeSchema 
 } from '../schemas/recipeSchemas.js';
@@ -21,6 +22,13 @@ recipesRouter.get(
   '/',
   validateIncomingPayload(getAllRecipesSchema, ValidateProp.query),
   recipesController.getRecipes
+);
+
+recipesRouter.get(
+  '/my',
+  authenticate,
+  validateIncomingPayload(getMyRecipesSchema, ValidateProp.query),
+  recipesController.getMyRecipes
 );
 
 recipesRouter.post(
