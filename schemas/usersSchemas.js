@@ -17,3 +17,9 @@ export const resendVerificationEmailSchema = Joi.object({
     'any.required': 'missing required field email',
   }),
 });
+
+export const addAndRemoveFollowingSchema = Joi.object({
+  followingId: Joi.string().required().messages({
+    'any.required': 'missing required field followingId',
+  }),
+});

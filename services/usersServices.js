@@ -42,6 +42,10 @@ export const getUserById = async (id, self = true) => {
   return result;
 };
 
+export const getOneUser = filter => {
+  return UserModel.findOne(filter);
+};
+
 export const updateUserById = (id, updatePayload) => {
   return UserModel.updateOne({ _id: id }, updatePayload);
 };
@@ -54,7 +58,7 @@ export const updateAvatar = async ({ filePath, userId }) => {
   return avatarURL;
 };
 
-export const addFollowingUser = async ({ id, followingId }) => {
+export const updateFollowing = async ({ id, followingId }) => {
   const [userFollower, _] = await Promise.all([
     UserModel.updateOne({ _id: id }, { $push: { following: followingId } }),
     UserModel.updateOne({ _id: followingId }, { $push: { followers: id } }),
@@ -63,7 +67,7 @@ export const addFollowingUser = async ({ id, followingId }) => {
   return userFollower;
 };
 
-export const removeFollowingUser = async ({ id, followingId }) => {
+export const deleteFollowing = async ({ id, followingId }) => {
   const [userFollower, _] = await Promise.all([
     UserModel.updateOne({ _id: id }, { $pull: { following: followingId } }),
     UserModel.updateOne({ _id: followingId }, { $pull: { followers: id } }),

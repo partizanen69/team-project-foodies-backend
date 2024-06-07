@@ -1,3 +1,4 @@
+import { isValidObjectId } from 'mongoose';
 import UserModel from '../db/users.model.js';
 import toHttpError from '../helpers/HttpError.js';
 import { compareHash, createToken } from '../helpers/auth.js';
@@ -109,20 +110,25 @@ const getFollowing = (req, res) => {
 };
 
 const addFollowing = async (req, res) => {
-  const user = req.user;
-  const { followingId } = req.body.followingId;
+  const { followingId } = req.body;
 
-  const followingUser = await userService.getUserById();
+  if (!isValidObjectId(followingId)) {
+    throw toHttpError(400, `${followingId} is not valid mongo object id`);
+  }
+
+  const user = req.user;
+
+  const followingUser = await userService.getOneUser({ _id: followingId });
 
   if (!followingUser) {
-    throw toHttpError('404', 'Not found');
+    throw toHttpError(404, 'Following user not found');
   }
 
   if (user.following.includes(followingId)) {
-    throw toHttpError('409', 'Already following');
+    throw toHttpError(409, 'Already following');
   }
 
-  await userService.addFollowingUser({
+  await userService.updateFollowing({
     id: user.id,
     followingId: followingId,
   });
@@ -133,19 +139,23 @@ const addFollowing = async (req, res) => {
 };
 
 const removeFollowing = async (req, res) => {
+  const { followingId } = req.body;
   const user = req.user;
 
-  if (!user.following.includes(req.body.followingId)) {
-    throw toHttpError('404', 'Not found');
+  if (!isValidObjectId(followingId)) {
+    throw toHttpError(400, `${followingId} is not valid mongo object id`);
   }
 
-  await userService.removeFollowingUser({
+  if (!user.following.includes(followingId)) {
+    throw toHttpError(404, "Already doesn't follow");
+  }
+
+  await userService.deleteFollowing({
     id: user.id,
-    followingId: req.body.followingId,
+    followingId,
   });
 
-  user.following.pull(req.body.followingId);
-
+  user.following.pull(followingId);
   res.status(200).json({ following: user.following });
 };
 
