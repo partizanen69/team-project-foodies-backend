@@ -9,6 +9,7 @@ const getRecipes = async (req, res) => {
     limit: _limit = 10,
     category = null,
     area = null,
+    ingredients = null
   } = req.query;
   const page = Number(_page);
   const limit = Number(_limit);
@@ -19,6 +20,7 @@ const getRecipes = async (req, res) => {
       limit,
       category,
       area,
+      ingredients
     }),
     recipesServices.getAllRecipesCount(),
   ]);
@@ -52,9 +54,41 @@ const addRecipe = async (req, res) => {
   });
 
   res.status(201).json(result);
-}
+};
+
+const getMyRecipes = async (req, res) => {
+  const { _id: owner } = req.user;
+  const {
+    page: _page = 1,
+    limit: _limit = 10,
+    category = null,
+    area = null,
+    ingredients = null
+  } = req.query;
+  const page = Number(_page);
+  const limit = Number(_limit);
+
+  const [recipes, totalRecipes] = await Promise.all([
+    recipesServices.getMyRecipes({
+      page,
+      limit,
+      category,
+      area,
+      ingredients,
+      owner
+    }),
+    recipesServices.getMyRecipesCount({ owner }),
+  ]);
+
+  res.status(200).json({
+    recipes,
+    page,
+    total: totalRecipes,
+  });
+};
 
 export default {
   getRecipes: toController(getRecipes),
   addRecipe: toController(addRecipe),
+  getMyRecipes: toController(getMyRecipes),
 };
