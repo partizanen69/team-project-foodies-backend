@@ -77,7 +77,7 @@ const getMyRecipes = async (req, res) => {
       ingredients,
       owner
     }),
-    recipesServices.getAllRecipesCount(),
+    recipesServices.getMyRecipesCount({ owner }),
   ]);
 
   res.status(200).json({

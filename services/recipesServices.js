@@ -17,6 +17,13 @@ export const getAllRecipesCount = async () => {
   return Number(count);
 };
 
+export const getMyRecipesCount = async ({ owner }) => {
+  const count = await Recipe.countDocuments(
+    owner ? { owner } : {}
+  );
+  return Number(count);
+};
+
 export const createRecipe = async(data) => {
   const recipe = await Recipe.create(data);
   return recipe;
