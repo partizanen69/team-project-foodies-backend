@@ -7,7 +7,7 @@ import {
 import authenticate from '../helpers/middlewares/authenticate.js';
 import upload from '../helpers/middlewares/upload.js';
 import isEmptyBody from '../helpers/middlewares/isEmptyBody.js';
-import { getAllRecipesSchema } from '../schemas/recipeSchemas.js';
+import { getAllRecipesSchema, getMyRecipesSchema } from '../schemas/recipeSchemas.js';
 import { addRecipeSchema } from '../schemas/recipeSchemas.js';
 
 
@@ -17,6 +17,13 @@ recipesRouter.get(
   '/',
   validateIncomingPayload(getAllRecipesSchema, ValidateProp.query),
   recipesController.getRecipes
+);
+
+recipesRouter.get(
+  '/my',
+  authenticate,
+  validateIncomingPayload(getMyRecipesSchema, ValidateProp.query),
+  recipesController.getMyRecipes
 );
 
 recipesRouter.post(
