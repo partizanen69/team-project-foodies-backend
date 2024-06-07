@@ -98,6 +98,6 @@ const addFavoriteRecipe = async (req, res) => {
 export default {
   getRecipes: toController(getRecipes),
   addRecipe: toController(addRecipe),
-  addFavoriteRecipe: toController(addFavoriteRecipe)
-  getMyRecipes: toController(getMyRecipes),
+  addFavoriteRecipe: toController(addFavoriteRecipe),
+  getMyRecipes: toController(getMyRecipes)
 };
