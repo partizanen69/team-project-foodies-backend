@@ -12,7 +12,6 @@ export const getMyRecipesSchema = Joi.object({
   limit: Joi.number().min(1),
   category: Joi.string(),
   area: Joi.string(),
-  owner: Joi.string().required(),
 });
 
 export const addRecipeSchema = Joi.object({
