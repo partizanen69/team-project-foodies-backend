@@ -41,4 +41,12 @@ usersRouter.patch(
   userControllers.updateAvatar
 );
 
+usersRouter.get('/followers', authenticate, userControllers.getFollowers);
+
+usersRouter.get('/following', authenticate, userControllers.getFollowing);
+
+usersRouter.post('/following', authenticate, userControllers.addFollowing);
+
+usersRouter.delete('/following', authenticate, userControllers.removeFollowing);
+
 export default usersRouter;

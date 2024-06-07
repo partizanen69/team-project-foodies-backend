@@ -53,3 +53,20 @@ export const updateAvatar = async ({ filePath, userId }) => {
 
   return avatarURL;
 };
+
+export const addFollowingUser = async ({ id, followingId }) => {
+  const [userFollower, _] = await Promise.all([
+    UserModel.updateOne({ _id: id }, { $push: { following: followingId } }),
+    UserModel.updateOne({ _id: followingId }, { $push: { followers: id } }),
+  ]);
+
+  return userFollower;
+};
+
+export const removeFollowingUser = async ({ id, followingId }) => {
+  const [userFollower, _] = await Promise.all([
+    UserModel.updateOne({ _id: id }, { $pull: { following: followingId } }),
+    UserModel.updateOne({ _id: followingId }, { $pull: { followers: id } }),
+  ]);
+  return userFollower;
+};
