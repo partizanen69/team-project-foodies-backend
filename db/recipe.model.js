@@ -1,6 +1,13 @@
 import { Schema, model } from 'mongoose';
 import { handleSaveError } from './hooks.js';
 
+const recipeIngredientSchema = new Schema(
+  {
+    id: { type: String, required: true },
+    measure: { type: String, required: [true, 'Measure is required'] },
+  },
+);
+
 const recipeSchema = new Schema(
   {
     title: {
@@ -17,11 +24,11 @@ const recipeSchema = new Schema(
     },
     area: {
       type: String,
-      required: [true, 'Aria is required'],
+      required: [true, 'Area is required'],
     },
     instructions: {
       type: String,
-      required: [true, 'Instructions is required'],
+      required: [true, 'Instructions are required'],
     },
     description: {
       type: String,
@@ -35,12 +42,10 @@ const recipeSchema = new Schema(
       type: String,
       required: [true, 'Time is required'],
     },
-    ingredients: [
-      {
-        id: { type: String, required: true },
-        measure: { type: String, required: [true, 'Measure is required']},
-      },
-    ],
+    ingredients: {
+      type: [recipeIngredientSchema],
+      required: true,
+    },
   },
   { versionKey: false, timestamps: true }
 );

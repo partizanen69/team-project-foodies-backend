@@ -16,7 +16,7 @@ export const createUser = async ({ name, email, password }) => {
   });
 };
 
-export const getUserById = async (id, self = true) => {
+export const getUserDetailsById = async id => {
   const [user, recipesCount] = await Promise.all([
     UserModel.findById(id)
       .select('name email avatarURL favorites followers following')
@@ -24,22 +24,7 @@ export const getUserById = async (id, self = true) => {
     Recipe.countDocuments({ owner: id }),
   ]);
 
-  const result = {
-    name: user.name,
-    email: user.email,
-    avatarURL: user.avatarURL,
-    followersCount: user.followers.length,
-    recipesCount,
-  };
-
-  if (self)
-    return {
-      ...result,
-      followingCount: user.following.length,
-      favorites: user.favorites.length,
-    };
-
-  return result;
+  return { user, recipesCount };
 };
 
 export const getOneUser = filter => {

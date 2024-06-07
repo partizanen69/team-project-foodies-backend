@@ -65,16 +65,25 @@ const getCurrentUser = (req, res) => {
 const getUserDetails = async (req, res) => {
   const targetUserId = req.params.id;
 
-  let result;
+  const { user, recipesCount } = await userService.getUserDetailsById(
+    targetUserId
+  );
 
-  if (targetUserId === req.user._id.toString()) {
-    result = await userService.getUserById(req.user._id, true);
-  } else {
-    result = await userService.getUserById(targetUserId, false);
+  if (!user) {
+    throw toHttpError(404, 'User not found');
   }
 
-  if (!result) {
-    throw toHttpError(404, 'User not found');
+  const result = {
+    name: user.name,
+    email: user.email,
+    avatarURL: user.avatarURL,
+    followersCount: user.followers.length,
+    recipesCount,
+  };
+
+  if (targetUserId === req.user._id.toString()) {
+    result.followingCount = user.following.length;
+    result.favorites = user.favorites.length;
   }
 
   res.status(200).json({
@@ -87,13 +96,13 @@ const updateAvatar = async (req, res) => {
     throw toHttpError(400, 'No file found in the request');
   }
 
-  const avatarRelativePath = await userService.updateAvatar({
+  const avatarURL = await userService.updateAvatar({
     filePath: req.file.path,
     userId: req.user.id,
   });
 
   res.status(200).json({
-    avatarURL: avatarRelativePath,
+    avatarURL,
   });
 };
 
