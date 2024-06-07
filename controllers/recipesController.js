@@ -36,8 +36,16 @@ const recipeImagesPath = path.resolve("public", "recipeImages");
 
 const addRecipe = async (req, res) => {
   const recipeData = req.body;
-  /* const parsedIngredients = JSON.parse(recipeData.ingredients); */
+  const parsedIngredients = JSON.parse(recipeData.ingredients);
 
+  if(!req.file) {
+    throw toController(400);
+  };
+
+  if(!recipeData.ingredients) {
+    throw toController(400);
+  };
+  
   const { _id: owner } = req.user;
   const { path: oldPath, filename } = req.file;
 
@@ -48,7 +56,7 @@ const addRecipe = async (req, res) => {
 
   const result = await recipesServices.createRecipe({
     ...recipeData,
-    /* ingredients: parsedIngredients, */
+    ingredients: parsedIngredients,
     thumb,
     owner,
   });
