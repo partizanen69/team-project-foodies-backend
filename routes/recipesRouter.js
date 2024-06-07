@@ -28,5 +28,9 @@ recipesRouter.post(
   recipesController.addRecipe
 );
 
+recipesRouter.get(
+  '/popular',
+  recipesController.getPopularRecipes
+);
 
 export default recipesRouter;

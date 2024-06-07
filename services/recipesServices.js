@@ -20,3 +20,28 @@ export const createRecipe = async(data) => {
   const recipe = await Recipe.create(data);
   return recipe;
 };
+
+export const getPopularRecipes = async () => {
+  const popularRecipes = await Recipe.aggregate([
+    {
+      $lookup: {
+        from: "users",
+        localField: "_id",
+        foreignField: "favorites",
+        as: "favoritedBy",
+      },
+    },
+    {
+      $addFields: {
+        popularity: { $size: "$favoritedBy" },
+      },
+    },
+    {
+      $sort: { popularity: -1 },
+    },
+    {
+      $limit: 10,  
+    },
+  ]);
+  return popularRecipes;
+};

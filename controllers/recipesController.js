@@ -54,7 +54,18 @@ const addRecipe = async (req, res) => {
   res.status(201).json(result);
 }
 
+const getPopularRecipes = async (req, res) => {
+  try {
+    const popularRecipes = await recipesServices.getPopularRecipes();
+    res.status(200).json(popularRecipes);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 export default {
   getRecipes: toController(getRecipes),
   addRecipe: toController(addRecipe),
+  getPopularRecipes: toController(getPopularRecipes),
+
 };
