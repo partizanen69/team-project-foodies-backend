@@ -40,4 +40,10 @@ recipesRouter.get(
   recipesController.getPopularRecipes
 );
 
+recipesRouter.delete(
+  '/:id',
+  authenticate,
+  recipesController.deleteRecipe
+);
+
 export default recipesRouter;

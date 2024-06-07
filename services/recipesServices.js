@@ -73,3 +73,12 @@ export const getMyRecipes = async ({ page, limit, category, area, ingredients, o
   return recipes;
 };
 
+export const getRecipeById = async (id) => {
+  const recipe = await Recipe.findById(id);
+  return recipe;
+};
+
+export const deleteOwnerRecipe = async ({ id, owner }) => {
+  await Recipe.deleteOne({ _id: id, owner });
+};
+
