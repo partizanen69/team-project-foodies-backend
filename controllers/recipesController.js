@@ -95,9 +95,34 @@ const addFavoriteRecipe = async (req, res) => {
   res.status(201).json(recipe);
 };
 
+const getPopularRecipes = async (req, res) => {
+    const popularRecipes = await recipesServices.getPopularRecipes();
+    res.status(200).json(popularRecipes);
+};
+
+const deleteRecipe = async (req, res) => {
+  const { id } = req.params;
+  const { _id: owner } = req.user;
+
+  const recipe = await recipesServices.getRecipeById(id);
+
+  if (!recipe) {
+    return res.status(404).json({ message: "Recipe not found" });
+  }
+
+  if (recipe.owner.toString() !== owner.toString()) {
+    return res.status(403).json({ message: "You cannot delete another user's recipe" });
+  }
+
+  await recipesServices.deleteOwnerRecipe({ id, owner });
+  res.status(204).send();
+}
+
 export default {
   getRecipes: toController(getRecipes),
   addRecipe: toController(addRecipe),
   addFavoriteRecipe: toController(addFavoriteRecipe),
-  getMyRecipes: toController(getMyRecipes)
+  getMyRecipes: toController(getMyRecipes),
+  getPopularRecipes: toController(getPopularRecipes),
+  deleteRecipe: toController(deleteRecipe),
 };
