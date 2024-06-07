@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt';
 import UserModel from '../db/users.model.js';
 import Recipe from '../db/recipe.model.js';
 import { generateAvatar, processImage } from '../helpers/processImage.js';
+import mongoose from 'mongoose';
 
 export const createUser = async ({ name, email, password }) => {
   const hashPassword = await bcrypt.hash(password, 10);
@@ -50,18 +51,43 @@ export const updateAvatar = async ({ filePath, userId }) => {
 };
 
 export const updateFollowing = async ({ id, followingId }) => {
-  const [userFollower, _] = await Promise.all([
-    UserModel.updateOne({ _id: id }, { $push: { following: followingId } }),
-    UserModel.updateOne({ _id: followingId }, { $push: { followers: id } }),
+  const convertedFollowingId =
+    mongoose.Types.ObjectId.createFromHexString(followingId);
+  const convertedId = mongoose.Types.ObjectId.createFromHexString(id);
+
+  const [userFollower, userFollowing] = await Promise.all([
+    UserModel.findOneAndUpdate(
+      { _id: id },
+      { $push: { following: convertedFollowingId } },
+      {
+        new: true,
+      }
+    ),
+    UserModel.findOneAndUpdate(
+      { _id: followingId },
+      { $push: { followers: convertedId } },
+      {
+        new: true,
+      }
+    ),
   ]);
 
-  return userFollower;
+  return { userFollower, userFollowing };
 };
 
 export const deleteFollowing = async ({ id, followingId }) => {
-  const [userFollower, _] = await Promise.all([
-    UserModel.updateOne({ _id: id }, { $pull: { following: followingId } }),
-    UserModel.updateOne({ _id: followingId }, { $pull: { followers: id } }),
+  const convertedFollowingId =
+    mongoose.Types.ObjectId.createFromHexString(followingId);
+  const convertedId = mongoose.Types.ObjectId.createFromHexString(id);
+  const [userFollower, userFollowing] = await Promise.all([
+    UserModel.findOneAndUpdate(
+      { _id: id },
+      { $pull: { following: convertedFollowingId } }
+    ),
+    UserModel.findOneAndUpdate(
+      { _id: followingId },
+      { $pull: { followers: convertedId } }
+    ),
   ]);
-  return userFollower;
+  return { userFollower, userFollowing };
 };

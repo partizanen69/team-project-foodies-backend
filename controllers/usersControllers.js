@@ -141,14 +141,12 @@ const addFollowing = async (req, res) => {
     throw toHttpError(409, 'Already following');
   }
 
-  await userService.updateFollowing({
+  const updatedUsers = await userService.updateFollowing({
     id: user.id,
     followingId: followingId,
   });
 
-  user.following.push(followingId);
-
-  res.status(201).json({ following: user.following });
+  res.status(201).json({ following: updatedUsers.userFollower.following });
 };
 
 const removeFollowing = async (req, res) => {
@@ -163,13 +161,12 @@ const removeFollowing = async (req, res) => {
     throw toHttpError(404, "Already doesn't follow");
   }
 
-  await userService.deleteFollowing({
+  const updatedUsers = await userService.deleteFollowing({
     id: user.id,
-    followingId,
+    followingId: followingId,
   });
 
-  user.following.pull(followingId);
-  res.status(200).json({ following: user.following });
+  res.status(201).json({ following: updatedUsers.userFollower.following });
 };
 
 export default {
