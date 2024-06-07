@@ -35,5 +35,11 @@ recipesRouter.post(
   recipesController.addRecipe
 );
 
+recipesRouter.delete(
+  '/:id',
+  authenticate,
+  recipesController.deleteRecipe
+);
+
 
 export default recipesRouter;
