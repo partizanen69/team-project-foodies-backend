@@ -1,5 +1,8 @@
 import Recipe from '../db/recipe.model.js';
 import User from '../db/users.model.js';
+import mongoose from 'mongoose';
+
+const ObjectId = mongoose.Types.ObjectId;
 
 export const getRecipes = async ({
   page,
@@ -85,7 +88,17 @@ export const getMyRecipes = async ({
   return recipes;
 };
 
-export const getRecipeById = async id => {
+export const addFavoriteRecipe = async (userId, recipeId) => {
+  await User.updateOne(
+    { _id: userId },
+    { $push: { favorites: ObjectId.createFromHexString(recipeId) } }
+  );
+  const recipe = await Recipe.findById(recipeId);
+
+  return recipe;
+};
+
+export const getRecipeById = async (id) => {
   const recipe = await Recipe.findById(id);
   return recipe;
 };
@@ -115,3 +128,4 @@ export const removeFavoriteRecipe = async (owner, recipeId) => {
   user.favorites.splice(index, 1);
   await user.save();
 };
+

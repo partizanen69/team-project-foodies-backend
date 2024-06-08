@@ -1,6 +1,7 @@
 import express from 'express';
 import userControllers from '../controllers/usersControllers.js';
 import {
+  addAndRemoveFollowingSchema,
   loginUserSchema,
   registerUserSchema,
 } from '../schemas/usersSchemas.js';
@@ -39,6 +40,24 @@ usersRouter.patch(
   authenticate,
   upload.single('avatar'),
   userControllers.updateAvatar
+);
+
+usersRouter.get('/followers', authenticate, userControllers.getFollowers);
+
+usersRouter.get('/following', authenticate, userControllers.getFollowing);
+
+usersRouter.post(
+  '/following',
+  authenticate,
+  validateIncomingPayload(addAndRemoveFollowingSchema),
+  userControllers.addFollowing
+);
+
+usersRouter.delete(
+  '/following',
+  authenticate,
+  validateIncomingPayload(addAndRemoveFollowingSchema),
+  userControllers.removeFollowing
 );
 
 export default usersRouter;

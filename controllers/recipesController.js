@@ -3,6 +3,8 @@ import fs from 'fs/promises';
 import * as recipesServices from '../services/recipesServices.js';
 import { toController } from '../utils/api.js';
 
+const recipeImagesPath = path.resolve("public", "recipeImages");
+
 const getRecipes = async (req, res) => {
   const {
     page: _page = 1,
@@ -95,6 +97,14 @@ const getMyRecipes = async (req, res) => {
   });
 };
 
+const addFavoriteRecipe = async (req, res) => {
+  const { _id: user } = req.user;
+  const { id } = req.params;
+
+  const recipe = await recipesServices.addFavoriteRecipe(user, id);
+  res.status(201).json(recipe);
+};
+
 const getPopularRecipes = async (req, res) => {
   const popularRecipes = await recipesServices.getPopularRecipes();
   res.status(200).json(popularRecipes);
@@ -154,8 +164,9 @@ const deleteFavoriteRecipe = async (req, res) => {
 export default {
   getRecipes: toController(getRecipes),
   addRecipe: toController(addRecipe),
-  getPopularRecipes: toController(getPopularRecipes),
+  addFavoriteRecipe: toController(addFavoriteRecipe),
   getMyRecipes: toController(getMyRecipes),
+  getPopularRecipes: toController(getPopularRecipes),
   deleteRecipe: toController(deleteRecipe),
   getFavoriteRecipes: toController(getFavoriteRecipes),
   deleteFavoriteRecipe: toController(deleteFavoriteRecipe),
