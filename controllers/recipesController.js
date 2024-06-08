@@ -1,5 +1,5 @@
 import path from 'path';
-import fs from "fs/promises";
+import fs from 'fs/promises';
 import * as recipesServices from '../services/recipesServices.js';
 import { toController } from '../utils/api.js';
 
@@ -11,7 +11,7 @@ const getRecipes = async (req, res) => {
     limit: _limit = 10,
     category = null,
     area = null,
-    ingredients = null
+    ingredients = null,
   } = req.query;
   const page = Number(_page);
   const limit = Number(_limit);
@@ -22,7 +22,7 @@ const getRecipes = async (req, res) => {
       limit,
       category,
       area,
-      ingredients
+      ingredients,
     }),
     recipesServices.getAllRecipesCount(),
   ]);
@@ -34,25 +34,27 @@ const getRecipes = async (req, res) => {
   });
 };
 
+const recipeImagesPath = path.resolve('public', 'recipeImages');
+
 const addRecipe = async (req, res) => {
   const recipeData = req.body;
   const parsedIngredients = JSON.parse(recipeData.ingredients);
 
-  if(!req.file) {
+  if (!req.file) {
     throw toController(400);
-  };
+  }
 
-  if(!recipeData.ingredients) {
+  if (!recipeData.ingredients) {
     throw toController(400);
-  };
-  
+  }
+
   const { _id: owner } = req.user;
   const { path: oldPath, filename } = req.file;
 
   const newPath = path.join(recipeImagesPath, filename);
   await fs.rename(oldPath, newPath);
 
-  const thumb = path.join("public", "recipeImages", filename); 
+  const thumb = path.join('public', 'recipeImages', filename);
 
   const result = await recipesServices.createRecipe({
     ...recipeData,
@@ -71,7 +73,7 @@ const getMyRecipes = async (req, res) => {
     limit: _limit = 10,
     category = null,
     area = null,
-    ingredients = null
+    ingredients = null,
   } = req.query;
   const page = Number(_page);
   const limit = Number(_limit);
@@ -83,7 +85,7 @@ const getMyRecipes = async (req, res) => {
       category,
       area,
       ingredients,
-      owner
+      owner,
     }),
     recipesServices.getMyRecipesCount({ owner }),
   ]);
@@ -104,8 +106,8 @@ const addFavoriteRecipe = async (req, res) => {
 };
 
 const getPopularRecipes = async (req, res) => {
-    const popularRecipes = await recipesServices.getPopularRecipes();
-    res.status(200).json(popularRecipes);
+  const popularRecipes = await recipesServices.getPopularRecipes();
+  res.status(200).json(popularRecipes);
 };
 
 const deleteRecipe = async (req, res) => {
@@ -115,21 +117,48 @@ const deleteRecipe = async (req, res) => {
   const recipe = await recipesServices.getRecipeById(id);
 
   if (!recipe) {
-    return res.status(404).json({ message: "Recipe not found" });
-  };
+    return res.status(404).json({ message: 'Recipe not found' });
+  }
 
   if (recipe.owner.toString() !== owner.toString()) {
-    return res.status(403).json({ message: "You cannot delete another user's recipe" });
-  };
-
-  const deleteImagePath = path.join(recipeImagesPath, path.basename(recipe.thumb));
-
-  if (recipe.thumb) {
-    await fs.unlink(deleteImagePath);
-  };
+    return res
+      .status(403)
+      .json({ message: "You cannot delete another user's recipe" });
+  }
 
   await recipesServices.deleteOwnerRecipe({ id, owner });
-  res.status(204).json({ message: "The recipe was deleted successfully" });
+  res.status(204).send();
+};
+
+const getFavoriteRecipes = async (req, res) => {
+  const { page = 1, limit = 10 } = req.query;
+  const pageNumber = Number(page);
+  const limitNumber = Number(limit);
+  const { _id: owner } = req.user;
+
+  const { favoriteRecipes, totalFavoriteRecipes } =
+    await recipesServices.listFavoriteRecipes({
+      page: pageNumber,
+      limit: limitNumber,
+      owner,
+    });
+
+  res.status(200).json({
+    recipes: favoriteRecipes,
+    page: pageNumber,
+    total: totalFavoriteRecipes,
+  });
+};
+
+const deleteFavoriteRecipe = async (req, res) => {
+  const { _id: owner } = req.user;
+  const { id } = req.params;
+
+  await recipesServices.removeFavoriteRecipe(owner, id);
+
+  res.status(200).json({
+    message: `Favorite recipe with id ${id} deleted successfully`,
+  });
 };
 
 export default {
@@ -139,4 +168,6 @@ export default {
   getMyRecipes: toController(getMyRecipes),
   getPopularRecipes: toController(getPopularRecipes),
   deleteRecipe: toController(deleteRecipe),
+  getFavoriteRecipes: toController(getFavoriteRecipes),
+  deleteFavoriteRecipe: toController(deleteFavoriteRecipe),
 };

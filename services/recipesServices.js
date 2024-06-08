@@ -4,7 +4,13 @@ import mongoose from 'mongoose';
 
 const ObjectId = mongoose.Types.ObjectId;
 
-export const getRecipes = async ({ page, limit, category, area, ingredients }) => {
+export const getRecipes = async ({
+  page,
+  limit,
+  category,
+  area,
+  ingredients,
+}) => {
   const recipes = await Recipe.find({
     ...(category ? { category } : null),
     ...(area ? { area } : null),
@@ -22,13 +28,11 @@ export const getAllRecipesCount = async () => {
 };
 
 export const getMyRecipesCount = async ({ owner }) => {
-  const count = await Recipe.countDocuments(
-    owner ? { owner } : {}
-  );
+  const count = await Recipe.countDocuments(owner ? { owner } : {});
   return Number(count);
 };
 
-export const createRecipe = async(data) => {
+export const createRecipe = async data => {
   const recipe = await Recipe.create(data);
   return recipe;
 };
@@ -37,22 +41,22 @@ export const getPopularRecipes = async () => {
   const popularRecipes = await Recipe.aggregate([
     {
       $lookup: {
-        from: "users",
-        localField: "_id",
-        foreignField: "favorites",
-        as: "favoritedBy",
+        from: 'users',
+        localField: '_id',
+        foreignField: 'favorites',
+        as: 'favoritedBy',
       },
     },
     {
       $addFields: {
-        popularity: { $size: "$favoritedBy" },
+        popularity: { $size: '$favoritedBy' },
       },
     },
     {
       $sort: { popularity: -1 },
     },
     {
-      $limit: 10,  
+      $limit: 10,
     },
     {
       $project: {
@@ -64,7 +68,14 @@ export const getPopularRecipes = async () => {
   return popularRecipes;
 };
 
-export const getMyRecipes = async ({ page, limit, category, area, ingredients, owner }) => {
+export const getMyRecipes = async ({
+  page,
+  limit,
+  category,
+  area,
+  ingredients,
+  owner,
+}) => {
   const recipes = await Recipe.find({
     ...(category ? { category } : null),
     ...(area ? { area } : null),
@@ -95,3 +106,26 @@ export const getRecipeById = async (id) => {
 export const deleteOwnerRecipe = async ({ id, owner }) => {
   await Recipe.deleteOne({ _id: id, owner });
 };
+
+export const listFavoriteRecipes = async ({ page, limit, owner }) => {
+  const user = await User.findById(owner).populate({
+    path: 'favorites',
+    model: Recipe,
+    options: {
+      skip: (page - 1) * limit,
+      limit: limit,
+    },
+  });
+  const favoriteRecipes = user.favorites;
+  const totalFavoriteRecipes = user.favorites.length;
+
+  return { favoriteRecipes, totalFavoriteRecipes };
+};
+
+export const removeFavoriteRecipe = async (owner, recipeId) => {
+  const user = await User.findById(owner);
+  const index = user.favorites.indexOf(recipeId);
+  user.favorites.splice(index, 1);
+  await user.save();
+};
+
