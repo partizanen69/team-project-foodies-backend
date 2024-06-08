@@ -32,10 +32,65 @@ export const getOneUser = filter => {
   return UserModel.findOne(filter);
 };
 
-export const getManyUsersById = idList => {
-  return UserModel.find({ _id: { $in: idList } }).select(
-    'name email avatarURL favorites followers following '
-  );
+export const getManyUsersAndRecipesById = (id, followers, maxRecipesCount) => {
+  const searchedField = followers ? 'followers' : 'following';
+
+  return UserModel.aggregate([
+    { $match: { _id: id } },
+    { $unwind: `$${searchedField}` },
+    {
+      $lookup: {
+        from: 'users',
+        localField: searchedField,
+        foreignField: '_id',
+        as: 'users',
+      },
+    },
+    { $unwind: '$users' },
+    {
+      $lookup: {
+        from: 'recipes',
+        localField: 'users._id',
+        foreignField: 'owner',
+        as: 'usersRecipes',
+      },
+    },
+    {
+      $project: {
+        _id: '$users._id',
+        name: '$users.name',
+        avatarURL: '$users.avatarURL',
+        recipes: {
+          $slice: ['$usersRecipes', maxRecipesCount],
+        },
+        recipesCount: {
+          $size: '$usersRecipes',
+        },
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        name: 1,
+        avatarURL: 1,
+        recipesCount: 1,
+        recipes: {
+          $map: {
+            input: '$recipes',
+            as: 'recipe',
+            in: {
+              title: '$$recipe.title',
+              category: '$$recipe.category',
+              owner: '$$recipe.owner',
+              area: '$$recipe.area',
+              time: '$$recipe.time',
+              thumb: '$$recipe.thumb',
+            },
+          },
+        },
+      },
+    },
+  ]);
 };
 
 export const updateUserById = (id, updatePayload) => {

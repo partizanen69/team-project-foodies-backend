@@ -109,7 +109,11 @@ const updateAvatar = async (req, res) => {
 const getFollowers = async (req, res) => {
   const user = req.user;
 
-  const followers = await userService.getManyUsersById(user.followers);
+  const followers = await userService.getManyUsersAndRecipesById(
+    user._id,
+    true,
+    4
+  );
 
   res.status(200).json({ followers });
 };
@@ -117,7 +121,11 @@ const getFollowers = async (req, res) => {
 const getFollowing = async (req, res) => {
   const user = req.user;
 
-  const following = await userService.getManyUsersById(user.following);
+  const following = await userService.getManyUsersAndRecipesById(
+    user._id,
+    false,
+    4
+  );
 
   res.status(200).json({ following });
 };
