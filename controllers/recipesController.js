@@ -3,6 +3,8 @@ import fs from "fs/promises";
 import * as recipesServices from '../services/recipesServices.js';
 import { toController } from '../utils/api.js';
 
+const recipeImagesPath = path.resolve("public", "recipeImages");
+
 const getRecipes = async (req, res) => {
   const {
     page: _page = 1,
@@ -31,8 +33,6 @@ const getRecipes = async (req, res) => {
     total: totalRecipes,
   });
 };
-
-const recipeImagesPath = path.resolve("public", "recipeImages");
 
 const addRecipe = async (req, res) => {
   const recipeData = req.body;
@@ -116,15 +116,21 @@ const deleteRecipe = async (req, res) => {
 
   if (!recipe) {
     return res.status(404).json({ message: "Recipe not found" });
-  }
+  };
 
   if (recipe.owner.toString() !== owner.toString()) {
     return res.status(403).json({ message: "You cannot delete another user's recipe" });
-  }
+  };
+
+  const deleteImagePath = path.join(recipeImagesPath, path.basename(recipe.thumb));
+
+  if (recipe.thumb) {
+    await fs.unlink(deleteImagePath);
+  };
 
   await recipesServices.deleteOwnerRecipe({ id, owner });
-  res.status(204).send();
-}
+  res.status(204).json({ message: "The recipe was deleted successfully" });
+};
 
 export default {
   getRecipes: toController(getRecipes),
