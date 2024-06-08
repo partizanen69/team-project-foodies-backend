@@ -7,9 +7,12 @@ import {
 import authenticate from '../helpers/middlewares/authenticate.js';
 import upload from '../helpers/middlewares/upload.js';
 import isEmptyBody from '../helpers/middlewares/isEmptyBody.js';
-import { getAllRecipesSchema, getMyRecipesSchema } from '../schemas/recipeSchemas.js';
+import {
+  getAllRecipesSchema,
+  getMyRecipesSchema,
+} from '../schemas/recipeSchemas.js';
 import { addRecipeSchema } from '../schemas/recipeSchemas.js';
-
+import isValidMongoId from '../helpers/middlewares/isValidObjectId.js';
 
 const recipesRouter = express.Router();
 
@@ -31,19 +34,25 @@ recipesRouter.post(
   authenticate,
   upload.single('thumb'),
   isEmptyBody,
-  validateIncomingPayload(addRecipeSchema, ValidateProp.body), 
+  validateIncomingPayload(addRecipeSchema, ValidateProp.body),
   recipesController.addRecipe
 );
 
+recipesRouter.get('/popular', recipesController.getPopularRecipes);
+
+recipesRouter.delete('/:id', authenticate, recipesController.deleteRecipe);
+
 recipesRouter.get(
-  '/popular',
-  recipesController.getPopularRecipes
+  '/favorites',
+  authenticate,
+  recipesController.getFavoriteRecipes
 );
 
 recipesRouter.delete(
-  '/:id',
+  '/:id/favorites',
   authenticate,
-  recipesController.deleteRecipe
+  isValidMongoId,
+  recipesController.deleteFavoriteRecipe
 );
 
 export default recipesRouter;
