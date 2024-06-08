@@ -95,6 +95,14 @@ const getMyRecipes = async (req, res) => {
   });
 };
 
+const addFavoriteRecipe = async (req, res) => {
+  const { _id: user } = req.user;
+  const { id } = req.params;
+
+  const recipe = await recipesServices.addFavoriteRecipe(user, id);
+  res.status(201).json(recipe);
+};
+
 const getPopularRecipes = async (req, res) => {
     const popularRecipes = await recipesServices.getPopularRecipes();
     res.status(200).json(popularRecipes);
@@ -121,7 +129,8 @@ const deleteRecipe = async (req, res) => {
 export default {
   getRecipes: toController(getRecipes),
   addRecipe: toController(addRecipe),
-  getPopularRecipes: toController(getPopularRecipes),
+  addFavoriteRecipe: toController(addFavoriteRecipe),
   getMyRecipes: toController(getMyRecipes),
+  getPopularRecipes: toController(getPopularRecipes),
   deleteRecipe: toController(deleteRecipe),
 };
