@@ -1,4 +1,3 @@
-import { isValidObjectId } from 'mongoose';
 import UserModel from '../db/users.model.js';
 import toHttpError from '../helpers/HttpError.js';
 import { compareHash, createToken } from '../helpers/auth.js';
@@ -132,11 +131,6 @@ const getFollowing = async (req, res) => {
 
 const addFollowing = async (req, res) => {
   const { followingId } = req.body;
-
-  if (!isValidObjectId(followingId)) {
-    throw toHttpError(400, `${followingId} is not valid mongo object id`);
-  }
-
   const user = req.user;
 
   const followingUser = await userService.getOneUser({ _id: followingId });
@@ -160,10 +154,6 @@ const addFollowing = async (req, res) => {
 const removeFollowing = async (req, res) => {
   const { followingId } = req.body;
   const user = req.user;
-
-  if (!isValidObjectId(followingId)) {
-    throw toHttpError(400, `${followingId} is not valid mongo object id`);
-  }
 
   if (!user.following.includes(followingId)) {
     throw toHttpError(404, "Already doesn't follow");
