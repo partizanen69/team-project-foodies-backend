@@ -1,6 +1,7 @@
 import Joi from 'joi';
 
-const ObjectId = require('mongoose').Types.ObjectId;
+import mongoose from 'mongoose';
+const ObjectId = mongoose.Types.ObjectId;
 
 export const getAllRecipesSchema = Joi.object({
   page: Joi.number().min(1),
@@ -27,13 +28,15 @@ export const addRecipeSchema = Joi.object({
 });
 
 export const addFavoriteRecipeSchema = Joi.object({
-  id: Joi.string().custom((value, helpers) => {
-    if (!ObjectId.isValid(value)) {
-      return helpers.error('any.invalid');
-    }
-    return value;
-  }, 'ObjectId Validation').messages({
-    'any.invalid': 'Invalid recipe ID format'
-  }).required()
+  id: Joi.string()
+    .custom((value, helpers) => {
+      if (!ObjectId.isValid(value)) {
+        return helpers.error('any.invalid');
+      }
+      return value;
+    }, 'ObjectId Validation')
+    .messages({
+      'any.invalid': 'Invalid recipe ID format',
+    })
+    .required(),
 });
-
