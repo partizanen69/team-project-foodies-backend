@@ -18,7 +18,6 @@ const getIngredientsByName = async (req, res) => {
 };
 
 export const getRecipesByIngredients = async (req, res) => {
-
     const ingredients = req.query.ingredients.split('"').join('');
 
     if (!ingredients) {
@@ -28,7 +27,7 @@ export const getRecipesByIngredients = async (req, res) => {
     const recipes = await ingredientsServices.searchRecipesByIngredient(ingredients);
 
     if (recipes.length === 0) {
-        return res.status(404).json({ message: 'No recipes found for the given ingredient' });
+        return [];
     }
 
     res.status(200).json(recipes);
