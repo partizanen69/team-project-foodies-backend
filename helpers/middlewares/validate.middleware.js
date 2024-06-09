@@ -22,7 +22,7 @@ export const validateIncomingPayload = (
   return func;
 };
 
-export const valdateAddFavoriteRecipe = () => {
+export const validateAddFavoriteRecipe = () => {
   const func = async ( req, _, next) => {
     const { _id: owner } = req.user;
     const { id } = req.params;
