@@ -1,4 +1,5 @@
 import { Schema, model } from 'mongoose';
+import { handleSaveError } from './hooks.js';
 
 const ingredientSchema = new Schema(
     {
@@ -17,6 +18,8 @@ const ingredientSchema = new Schema(
     },
     { timestamps: true }
 );
+
+ingredientSchema.post('save', handleSaveError);
 
 const Ingredient = model('ingredient', ingredientSchema);
 
