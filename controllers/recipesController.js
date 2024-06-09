@@ -3,7 +3,7 @@ import fs from 'fs/promises';
 import * as recipesServices from '../services/recipesServices.js';
 import { toController } from '../utils/api.js';
 
-const recipeImagesPath = path.resolve("public", "recipeImages");
+const recipeImagesPath = path.resolve('public', 'recipeImages');
 
 const getRecipes = async (req, res) => {
   const {
@@ -33,8 +33,6 @@ const getRecipes = async (req, res) => {
     total: totalRecipes,
   });
 };
-
-const recipeImagesPath = path.resolve('public', 'recipeImages');
 
 const addRecipe = async (req, res) => {
   const recipeData = req.body;
