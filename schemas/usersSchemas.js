@@ -20,6 +20,11 @@ export const resendVerificationEmailSchema = Joi.object({
   }),
 });
 
+export const getFollowersAndFollowingSchema = Joi.object({
+  page: Joi.number().min(1),
+  limit: Joi.number().min(1),
+});
+
 export const addAndRemoveFollowingSchema = Joi.object({
   followingId: Joi.string()
     .custom((value, helpers) => {
