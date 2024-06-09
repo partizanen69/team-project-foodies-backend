@@ -32,7 +32,13 @@ export const getOneUser = filter => {
   return UserModel.findOne(filter);
 };
 
-export const getManyUsersAndRecipesById = (id, followers, maxRecipesCount) => {
+export const getManyUsersAndRecipesById = ({
+  id,
+  followers,
+  maxRecipesCount = 4,
+  page,
+  limit,
+}) => {
   const searchedField = followers ? 'followers' : 'following';
 
   return UserModel.aggregate([
@@ -90,7 +96,9 @@ export const getManyUsersAndRecipesById = (id, followers, maxRecipesCount) => {
         },
       },
     },
-  ]);
+  ])
+    .skip((page - 1) * limit)
+    .limit(limit);
 };
 
 export const updateUserById = (id, updatePayload) => {

@@ -2,12 +2,16 @@ import express from 'express';
 import userControllers from '../controllers/usersControllers.js';
 import {
   addAndRemoveFollowingSchema,
+  getFollowersAndFollowingSchema,
   loginUserSchema,
   registerUserSchema,
 } from '../schemas/usersSchemas.js';
 import authenticate from '../helpers/middlewares/authenticate.js';
 import upload from '../helpers/middlewares/upload.js';
-import { validateIncomingPayload } from '../helpers/middlewares/validate.middleware.js';
+import {
+  ValidateProp,
+  validateIncomingPayload,
+} from '../helpers/middlewares/validate.middleware.js';
 import isValidMongoId from '../helpers/middlewares/isValidObjectId.js';
 
 const usersRouter = express.Router();
@@ -42,21 +46,31 @@ usersRouter.patch(
   userControllers.updateAvatar
 );
 
-usersRouter.get('/followers', authenticate, userControllers.getFollowers);
+usersRouter.get(
+  '/followers',
+  validateIncomingPayload(getFollowersAndFollowingSchema, ValidateProp.query),
+  authenticate,
+  userControllers.getFollowers
+);
 
-usersRouter.get('/following', authenticate, userControllers.getFollowing);
+usersRouter.get(
+  '/following',
+  validateIncomingPayload(getFollowersAndFollowingSchema, ValidateProp.query),
+  authenticate,
+  userControllers.getFollowing
+);
 
 usersRouter.post(
   '/following',
   authenticate,
-  validateIncomingPayload(addAndRemoveFollowingSchema),
+  validateIncomingPayload(addAndRemoveFollowingSchema, ValidateProp.body),
   userControllers.addFollowing
 );
 
 usersRouter.delete(
   '/following',
   authenticate,
-  validateIncomingPayload(addAndRemoveFollowingSchema),
+  validateIncomingPayload(addAndRemoveFollowingSchema, ValidateProp.body),
   userControllers.removeFollowing
 );
 
