@@ -99,8 +99,47 @@ export const addFavoriteRecipe = async (userId, recipeId) => {
 };
 
 export const getRecipeById = async (id) => {
-  const recipe = await Recipe.findById(id);
-  return recipe;
+  const recipe = await Recipe.aggregate([
+    {
+      $match: {
+        _id: new ObjectId(id),
+      },
+    },
+    {
+      $lookup: {
+        from: "ingredients",
+        localField: "ingredients.id",
+        foreignField: "_id",
+        as: "ingr_info",
+      },
+    },
+    {
+      $set: {
+        ingredients: {
+          $map: {
+            input: "$ingredients",
+            in: {
+              $mergeObjects: [
+                "$$this",
+                {
+                  $arrayElemAt: [
+                    "$ingr_info",
+                    {
+                      $indexOfArray: ["$ingr_info._id", "$$this.id"],
+                    },
+                  ],
+                },
+              ],
+            },
+          },
+        },
+      },
+    },
+    {
+      $unset: ["ingr_info", "ingredients.id"],
+    },
+  ]);
+  return recipe.length ? recipe[0] : null;
 };
 
 export const deleteOwnerRecipe = async ({ id, owner }) => {

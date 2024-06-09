@@ -10,6 +10,20 @@ export const getAllRecipesSchema = Joi.object({
   area: Joi.string(),
 });
 
+export const getRecipeByIdSchema = Joi.object({
+  id: Joi.string()
+    .custom((value, helpers) => {
+      if (!ObjectId.isValid(value)) {
+        return helpers.error('any.invalid');
+      }
+      return value;
+    }, 'ObjectId Validation')
+    .messages({
+      'any.invalid': 'Invalid recipe ID format',
+    })
+    .required(),
+});
+
 export const getMyRecipesSchema = Joi.object({
   page: Joi.number().min(1),
   limit: Joi.number().min(1),
