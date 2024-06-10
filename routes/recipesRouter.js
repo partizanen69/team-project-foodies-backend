@@ -12,6 +12,7 @@ import isValidMongoId from '../helpers/middlewares/isValidObjectId.js';
 import { 
   getAllRecipesSchema, 
   getMyRecipesSchema,
+  getRecipeByIdSchema,
   addRecipeSchema, 
   addFavoriteRecipeSchema 
 } from '../schemas/recipeSchemas.js';
@@ -41,6 +42,12 @@ recipesRouter.post(
 );
 
 recipesRouter.get('/popular', recipesController.getPopularRecipes);
+
+recipesRouter.get('/:id',
+  isValidMongoId,
+  validateIncomingPayload(getRecipeByIdSchema, "params"),
+  recipesController.getOneRecipeById
+);
 
 recipesRouter.delete('/:id', authenticate, recipesController.deleteRecipe);
 
