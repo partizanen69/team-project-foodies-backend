@@ -3,18 +3,18 @@ import recipesController from '../controllers/recipesController.js';
 import {
   ValidateProp,
   validateIncomingPayload,
-  validateAddFavoriteRecipe
+  validateAddFavoriteRecipe,
 } from '../helpers/middlewares/validate.middleware.js';
 import authenticate from '../helpers/middlewares/authenticate.js';
 import upload from '../helpers/middlewares/upload.js';
 import isEmptyBody from '../helpers/middlewares/isEmptyBody.js';
 import isValidMongoId from '../helpers/middlewares/isValidObjectId.js';
-import { 
-  getAllRecipesSchema, 
+import {
+  getAllRecipesSchema,
   getMyRecipesSchema,
   getRecipeByIdSchema,
-  addRecipeSchema, 
-  addFavoriteRecipeSchema 
+  addRecipeSchema,
+  addFavoriteRecipeSchema,
 } from '../schemas/recipeSchemas.js';
 
 const recipesRouter = express.Router();
@@ -43,9 +43,10 @@ recipesRouter.post(
 
 recipesRouter.get('/popular', recipesController.getPopularRecipes);
 
-recipesRouter.get('/:id',
+recipesRouter.get(
+  '/:id',
   isValidMongoId,
-  validateIncomingPayload(getRecipeByIdSchema, "params"),
+  validateIncomingPayload(getRecipeByIdSchema, ValidateProp.params),
   recipesController.getOneRecipeById
 );
 
