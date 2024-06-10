@@ -3,7 +3,7 @@ import recipesController from '../controllers/recipesController.js';
 import {
   ValidateProp,
   validateIncomingPayload,
-  valdateAddFavoriteRecipe
+  validateAddFavoriteRecipe
 } from '../helpers/middlewares/validate.middleware.js';
 import authenticate from '../helpers/middlewares/authenticate.js';
 import upload from '../helpers/middlewares/upload.js';
@@ -48,7 +48,7 @@ recipesRouter.post(
   '/:id/favorites',
   authenticate,
   validateIncomingPayload(addFavoriteRecipeSchema, ValidateProp.body),
-  valdateAddFavoriteRecipe,
+  validateAddFavoriteRecipe,
   recipesController.addFavoriteRecipe
 );
 
