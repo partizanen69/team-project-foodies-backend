@@ -1,7 +1,8 @@
 import path from 'path';
-import fs from "fs/promises";
+import fs from 'fs/promises';
 import * as recipesServices from '../services/recipesServices.js';
 import { toController } from '../utils/api.js';
+import toHttpError from '../helpers/HttpError.js';
 
 const getRecipes = async (req, res) => {
   const {
@@ -9,7 +10,7 @@ const getRecipes = async (req, res) => {
     limit: _limit = 10,
     category = null,
     area = null,
-    ingredients = null
+    ingredients = null,
   } = req.query;
   const page = Number(_page);
   const limit = Number(_limit);
@@ -20,7 +21,7 @@ const getRecipes = async (req, res) => {
       limit,
       category,
       area,
-      ingredients
+      ingredients,
     }),
     recipesServices.getAllRecipesCount(),
   ]);
@@ -32,27 +33,27 @@ const getRecipes = async (req, res) => {
   });
 };
 
-const recipeImagesPath = path.resolve("public", "recipeImages");
+const recipeImagesPath = path.resolve('public', 'recipeImages');
 
 const addRecipe = async (req, res) => {
   const recipeData = req.body;
   const parsedIngredients = JSON.parse(recipeData.ingredients);
 
-  if(!req.file) {
-    throw toController(400);
-  };
+  if (!req.file) {
+    throw toHttpError(400);
+  }
 
-  if(!recipeData.ingredients) {
-    throw toController(400);
-  };
-  
+  if (!recipeData.ingredients) {
+    throw toHttpError(400);
+  }
+
   const { _id: owner } = req.user;
   const { path: oldPath, filename } = req.file;
 
   const newPath = path.join(recipeImagesPath, filename);
   await fs.rename(oldPath, newPath);
 
-  const thumb = path.join("public", "recipeImages", filename); 
+  const thumb = path.join('public', 'recipeImages', filename);
 
   const result = await recipesServices.createRecipe({
     ...recipeData,
@@ -71,7 +72,7 @@ const getMyRecipes = async (req, res) => {
     limit: _limit = 10,
     category = null,
     area = null,
-    ingredients = null
+    ingredients = null,
   } = req.query;
   const page = Number(_page);
   const limit = Number(_limit);
@@ -83,7 +84,7 @@ const getMyRecipes = async (req, res) => {
       category,
       area,
       ingredients,
-      owner
+      owner,
     }),
     recipesServices.getMyRecipesCount({ owner }),
   ]);
@@ -96,8 +97,8 @@ const getMyRecipes = async (req, res) => {
 };
 
 const getPopularRecipes = async (req, res) => {
-    const popularRecipes = await recipesServices.getPopularRecipes();
-    res.status(200).json(popularRecipes);
+  const popularRecipes = await recipesServices.getPopularRecipes();
+  res.status(200).json(popularRecipes);
 };
 
 const deleteRecipe = async (req, res) => {
@@ -107,16 +108,16 @@ const deleteRecipe = async (req, res) => {
   const recipe = await recipesServices.getRecipeById(id);
 
   if (!recipe) {
-    return res.status(404).json({ message: "Recipe not found" });
+    throw toHttpError(404, 'Recipe not found');
   }
 
   if (recipe.owner.toString() !== owner.toString()) {
-    return res.status(403).json({ message: "You cannot delete another user's recipe" });
+    throw toHttpError(403, "You cannot delete another user's recipe");
   }
 
   await recipesServices.deleteOwnerRecipe({ id, owner });
   res.status(204).send();
-}
+};
 
 export default {
   getRecipes: toController(getRecipes),
