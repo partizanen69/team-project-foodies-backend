@@ -23,22 +23,20 @@ export const validateIncomingPayload = (
   return func;
 };
 
-export const validateAddFavoriteRecipe = () => {
-  const func = async (req, _, next) => {
-    const { _id: owner } = req.user;
-    const { id } = req.params;
+export const validateAddFavoriteRecipe = async (req, _, next) => {
+  const { _id: owner } = req.user;
+  const { id } = req.params;
 
-    const user = await User.findById(owner);
-    const recipe = await Recipe.findById(id);
+  const user = await User.findById(owner);
+  const recipe = await Recipe.findById(id);
 
-    if (!recipe) {
-      next(toHttpError(400, 'Recipe not found'));
-    }
-    if (user.favorites.includes(id)) {
-      next(toHttpError(400, 'Recipe is already in favorites'));
-    }
-    next();
-  };
-
-  return func;
+  if (!recipe) {
+    next(toHttpError(400, 'Recipe not found'));
+    return;
+  }
+  if (user.favorites.includes(id)) {
+    next(toHttpError(400, 'Recipe is already in favorites'));
+    return;
+  }
+  next();
 };

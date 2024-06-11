@@ -14,7 +14,7 @@ import {
   getMyRecipesSchema,
   getRecipeByIdSchema,
   addRecipeSchema,
-  addFavoriteRecipeSchema,
+  getFavoriteRecipeSchema,
 } from '../schemas/recipeSchemas.js';
 
 const recipesRouter = express.Router();
@@ -44,6 +44,13 @@ recipesRouter.post(
 recipesRouter.get('/popular', recipesController.getPopularRecipes);
 
 recipesRouter.get(
+  '/favorites',
+  authenticate,
+  validateIncomingPayload(getFavoriteRecipeSchema, ValidateProp.query),
+  recipesController.getFavoriteRecipes
+);
+
+recipesRouter.get(
   '/:id',
   isValidMongoId,
   validateIncomingPayload(getRecipeByIdSchema, ValidateProp.params),
@@ -55,15 +62,8 @@ recipesRouter.delete('/:id', authenticate, recipesController.deleteRecipe);
 recipesRouter.post(
   '/:id/favorites',
   authenticate,
-  validateIncomingPayload(addFavoriteRecipeSchema, ValidateProp.body),
   validateAddFavoriteRecipe,
   recipesController.addFavoriteRecipe
-);
-
-recipesRouter.get(
-  '/favorites',
-  authenticate,
-  recipesController.getFavoriteRecipes
 );
 
 recipesRouter.delete(

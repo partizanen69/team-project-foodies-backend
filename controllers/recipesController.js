@@ -2,6 +2,10 @@ import path from 'path';
 import fs from 'fs/promises';
 import * as recipesServices from '../services/recipesServices.js';
 import { toController } from '../utils/api.js';
+import toHttpError from '../helpers/HttpError.js';
+
+import mongoose from 'mongoose';
+const ObjectId = mongoose.Types.ObjectId;
 
 const recipeImagesPath = path.resolve('public', 'recipeImages');
 
@@ -38,7 +42,7 @@ const getOneRecipeById = async (req, res) => {
   const { id } = req.params;
 
   const recipe = await recipesServices.getRecipeById(id);
-  
+
   if (!recipe) {
     return res.status(404).json({ message: `Recipe not found` });
   }
@@ -141,7 +145,21 @@ const deleteRecipe = async (req, res) => {
 };
 
 const getFavoriteRecipes = async (req, res) => {
-  const { page = 1, limit = 10 } = req.query;
+  const { page = 1, limit = 10, recipeIds: _recipeIds } = req.query;
+
+  let recipeIds;
+  if (_recipeIds) {
+    try {
+      recipeIds = JSON.parse(_recipeIds).forEach(recipeId => {
+        if (!ObjectId.isValid(recipeId)) {
+          throw new Error(`${recipeId} is not valid mongo object id`);
+        }
+      });
+    } catch (err) {
+      throw toHttpError(400, `recipeIds is invalid: ${err.message}`);
+    }
+  }
+
   const pageNumber = Number(page);
   const limitNumber = Number(limit);
   const { _id: owner } = req.user;
@@ -151,6 +169,7 @@ const getFavoriteRecipes = async (req, res) => {
       page: pageNumber,
       limit: limitNumber,
       owner,
+      ...(recipeIds ? { recipeIds } : null),
     });
 
   res.status(200).json({
