@@ -1,8 +1,11 @@
 import toHttpError from '../HttpError.js';
+import Recipe from '../../db/recipe.model.js';
+import User from '../../db/users.model.js';
 
 export const ValidateProp = {
   body: 'body',
   query: 'query',
+  params: 'params',
 };
 
 export const validateIncomingPayload = (
@@ -18,4 +21,22 @@ export const validateIncomingPayload = (
   };
 
   return func;
+};
+
+export const validateAddFavoriteRecipe = async (req, _, next) => {
+  const { _id: owner } = req.user;
+  const { id } = req.params;
+
+  const user = await User.findById(owner);
+  const recipe = await Recipe.findById(id);
+
+  if (!recipe) {
+    next(toHttpError(400, 'Recipe not found'));
+    return;
+  }
+  if (user.favorites.includes(id)) {
+    next(toHttpError(400, 'Recipe is already in favorites'));
+    return;
+  }
+  next();
 };

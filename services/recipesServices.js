@@ -1,6 +1,16 @@
 import Recipe from '../db/recipe.model.js';
+import User from '../db/users.model.js';
+import mongoose from 'mongoose';
 
-export const getRecipes = async ({ page, limit, category, area, ingredients }) => {
+const ObjectId = mongoose.Types.ObjectId;
+
+export const getRecipes = async ({
+  page,
+  limit,
+  category,
+  area,
+  ingredients,
+}) => {
   const recipes = await Recipe.find({
     ...(category ? { category } : null),
     ...(area ? { area } : null),
@@ -18,13 +28,11 @@ export const getAllRecipesCount = async () => {
 };
 
 export const getMyRecipesCount = async ({ owner }) => {
-  const count = await Recipe.countDocuments(
-    owner ? { owner } : {}
-  );
+  const count = await Recipe.countDocuments(owner ? { owner } : {});
   return Number(count);
 };
 
-export const createRecipe = async(data) => {
+export const createRecipe = async data => {
   const recipe = await Recipe.create(data);
   return recipe;
 };
@@ -33,22 +41,22 @@ export const getPopularRecipes = async () => {
   const popularRecipes = await Recipe.aggregate([
     {
       $lookup: {
-        from: "users",
-        localField: "_id",
-        foreignField: "favorites",
-        as: "favoritedBy",
+        from: 'users',
+        localField: '_id',
+        foreignField: 'favorites',
+        as: 'favoritedBy',
       },
     },
     {
       $addFields: {
-        popularity: { $size: "$favoritedBy" },
+        popularity: { $size: '$favoritedBy' },
       },
     },
     {
       $sort: { popularity: -1 },
     },
     {
-      $limit: 10,  
+      $limit: 10,
     },
     {
       $project: {
@@ -60,7 +68,14 @@ export const getPopularRecipes = async () => {
   return popularRecipes;
 };
 
-export const getMyRecipes = async ({ page, limit, category, area, ingredients, owner }) => {
+export const getMyRecipes = async ({
+  page,
+  limit,
+  category,
+  area,
+  ingredients,
+  owner,
+}) => {
   const recipes = await Recipe.find({
     ...(category ? { category } : null),
     ...(area ? { area } : null),
@@ -73,12 +88,102 @@ export const getMyRecipes = async ({ page, limit, category, area, ingredients, o
   return recipes;
 };
 
-export const getRecipeById = async (id) => {
-  const recipe = await Recipe.findById(id);
+export const addFavoriteRecipe = async (userId, recipeId) => {
+  await User.updateOne(
+    { _id: userId },
+    { $push: { favorites: ObjectId.createFromHexString(recipeId) } }
+  );
+  const recipe = await Recipe.findById(recipeId);
+
   return recipe;
+};
+
+export const getRecipeById = async id => {
+  const recipe = await Recipe.aggregate([
+    {
+      $match: {
+        _id: new ObjectId(id),
+      },
+    },
+    {
+      $lookup: {
+        from: 'ingredients',
+        localField: 'ingredients.id',
+        foreignField: '_id',
+        as: 'ingr_info',
+      },
+    },
+    {
+      $set: {
+        ingredients: {
+          $map: {
+            input: '$ingredients',
+            in: {
+              $mergeObjects: [
+                '$$this',
+                {
+                  $arrayElemAt: [
+                    '$ingr_info',
+                    {
+                      $indexOfArray: ['$ingr_info._id', '$$this.id'],
+                    },
+                  ],
+                },
+              ],
+            },
+          },
+        },
+      },
+    },
+    {
+      $unset: ['ingr_info', 'ingredients.id'],
+    },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'owner',
+        foreignField: '_id',
+        as: 'owner',
+      },
+    },
+    {
+      $unwind: '$owner',
+    },
+  ]);
+  return recipe.length ? recipe[0] : null;
 };
 
 export const deleteOwnerRecipe = async ({ id, owner }) => {
   await Recipe.deleteOne({ _id: id, owner });
 };
 
+export const listFavoriteRecipes = async ({
+  page,
+  limit,
+  owner,
+  recipeIds,
+}) => {
+  const user = await User.findById(owner).populate({
+    path: 'favorites',
+    model: Recipe,
+    ...(recipeIds && recipeIds.length
+      ? { match: { _id: { $in: recipeIds.map(ObjectId.createFromHexString) } } }
+      : null),
+    options: {
+      skip: (page - 1) * limit,
+      limit: limit,
+    },
+  });
+
+  const favoriteRecipes = user.favorites;
+  const totalFavoriteRecipes = user.favorites.length;
+
+  return { favoriteRecipes, totalFavoriteRecipes };
+};
+
+export const removeFavoriteRecipe = async (owner, recipeId) => {
+  const user = await User.findById(owner);
+  const index = user.favorites.indexOf(recipeId);
+  user.favorites.splice(index, 1);
+  await user.save();
+};

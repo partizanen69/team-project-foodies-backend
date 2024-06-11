@@ -111,6 +111,72 @@ const updateAvatar = async (req, res) => {
   });
 };
 
+const getFollowers = async (req, res) => {
+  const user = req.user;
+  const { page = 1, limit = 9 } = req.query;
+
+  const followers = await userService.getManyUsersAndRecipesById({
+    id: user._id,
+    followers: true,
+    page,
+    limit,
+  });
+
+  res.status(200).json({ followers, page, total: user.followers.length });
+};
+
+const getFollowing = async (req, res) => {
+  const user = req.user;
+  const { page = 1, limit = 9 } = req.query;
+
+  const following = await userService.getManyUsersAndRecipesById({
+    id: user._id,
+    followers: false,
+    page,
+    limit,
+  });
+
+  res.status(200).json({ following, page, total: user.following.length });
+};
+
+const addFollowing = async (req, res) => {
+  const { followingId } = req.body;
+  const user = req.user;
+
+  const followingUser = await userService.getOneUser({ _id: followingId });
+
+  if (!followingUser) {
+    throw toHttpError(404, 'Following user not found');
+  }
+
+  if (user.following.includes(followingId)) {
+    throw toHttpError(409, 'Already following');
+  }
+
+  const updatedUsers = await userService.updateFollowing({
+    id: user.id,
+    followingId: followingId,
+  });
+
+  res.status(201).json({ following: updatedUsers.userFollower.following });
+};
+
+const removeFollowing = async (req, res) => {
+  const { followingId } = req.body;
+  const user = req.user;
+
+  if (!user.following.includes(followingId)) {
+    throw toHttpError(404, "Already doesn't follow");
+  }
+
+  const updatedUsers = await userService.deleteFollowing({
+    id: user.id,
+    followingId: followingId,
+  });
+
+  res.status(201).json({ following: updatedUsers.userFollower.following });
+};
+
 export default {
   registerUser: toController(registerUser),
   loginUser: toController(loginUser),
@@ -118,4 +184,8 @@ export default {
   getCurrentUser: toController(getCurrentUser),
   updateAvatar: toController(updateAvatar),
   getUserDetails: toController(getUserDetails),
+  getFollowers: toController(getFollowers),
+  getFollowing: toController(getFollowing),
+  addFollowing: toController(addFollowing),
+  removeFollowing: toController(removeFollowing),
 };
