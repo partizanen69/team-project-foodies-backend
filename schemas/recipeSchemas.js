@@ -54,3 +54,9 @@ export const addFavoriteRecipeSchema = Joi.object({
     })
     .required(),
 });
+
+export const getFavoriteRecipeSchema = Joi.object({
+  page: Joi.number(),
+  limit: Joi.number(),
+  recipeIds: Joi.string(),
+});

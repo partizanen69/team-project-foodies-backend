@@ -157,15 +157,24 @@ export const deleteOwnerRecipe = async ({ id, owner }) => {
   await Recipe.deleteOne({ _id: id, owner });
 };
 
-export const listFavoriteRecipes = async ({ page, limit, owner }) => {
+export const listFavoriteRecipes = async ({
+  page,
+  limit,
+  owner,
+  recipeIds,
+}) => {
   const user = await User.findById(owner).populate({
     path: 'favorites',
     model: Recipe,
+    ...(recipeIds && recipeIds.length
+      ? { match: { _id: { $in: recipeIds.map(ObjectId.createFromHexString) } } }
+      : null),
     options: {
       skip: (page - 1) * limit,
       limit: limit,
     },
   });
+
   const favoriteRecipes = user.favorites;
   const totalFavoriteRecipes = user.favorites.length;
 
