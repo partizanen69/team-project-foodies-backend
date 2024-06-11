@@ -5,6 +5,7 @@ import User from '../../db/users.model.js';
 export const ValidateProp = {
   body: 'body',
   query: 'query',
+  params: 'params',
 };
 
 export const validateIncomingPayload = (
@@ -23,7 +24,7 @@ export const validateIncomingPayload = (
 };
 
 export const validateAddFavoriteRecipe = () => {
-  const func = async ( req, _, next) => {
+  const func = async (req, _, next) => {
     const { _id: owner } = req.user;
     const { id } = req.params;
 
@@ -36,8 +37,8 @@ export const validateAddFavoriteRecipe = () => {
     if (user.favorites.includes(id)) {
       next(toHttpError(400, 'Recipe is already in favorites'));
     }
-    next()
-  }
-  
-  return func
-}
+    next();
+  };
+
+  return func;
+};
