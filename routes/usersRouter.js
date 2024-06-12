@@ -34,7 +34,7 @@ usersRouter.get('/current', authenticate, userControllers.getCurrentUser);
 
 usersRouter.get(
   '/user-details/:id',
-  isValidMongoId,
+  authenticate,
   userControllers.getUserDetails
 );
 
