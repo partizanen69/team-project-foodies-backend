@@ -42,7 +42,12 @@ const loginUser = async (req, res) => {
 
   res.json({
     token,
-    user: { name: user.name, email: user.email, avatarURL: user.avatarURL },
+    user: {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      avatarURL: user.avatarURL,
+    },
   });
 };
 
@@ -53,8 +58,9 @@ const logoutUser = async (req, res) => {
 };
 
 const getCurrentUser = (req, res) => {
-  const { name, email, avatarURL } = req.user;
+  const { _id, name, email, avatarURL } = req.user;
   res.status(200).json({
+    id: _id,
     name,
     email,
     avatarURL,
@@ -86,7 +92,7 @@ const getUserDetails = async (req, res) => {
   }
 
   res.status(200).json({
-    result,
+    ...result,
   });
 };
 

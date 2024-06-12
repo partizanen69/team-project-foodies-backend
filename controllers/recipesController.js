@@ -44,7 +44,7 @@ const getOneRecipeById = async (req, res) => {
   const recipe = await recipesServices.getRecipeById(id);
 
   if (!recipe) {
-    return res.status(404).json({ message: `Recipe not found` });
+    throw toHttpError(404, 'Recipe not found');
   }
 
   res.status(200).json(recipe);
@@ -55,11 +55,11 @@ const addRecipe = async (req, res) => {
   const parsedIngredients = JSON.parse(recipeData.ingredients);
 
   if (!req.file) {
-    throw toController(400);
+    throw toHttpError(400);
   }
 
   if (!recipeData.ingredients) {
-    throw toController(400);
+    throw toHttpError(400);
   }
 
   const { _id: owner } = req.user;
@@ -131,13 +131,11 @@ const deleteRecipe = async (req, res) => {
   const recipe = await recipesServices.getRecipeById(id);
 
   if (!recipe) {
-    return res.status(404).json({ message: 'Recipe not found' });
+    throw toHttpError(404, 'Recipe not found');
   }
 
   if (recipe.owner.toString() !== owner.toString()) {
-    return res
-      .status(403)
-      .json({ message: "You cannot delete another user's recipe" });
+    throw toHttpError(403, "You cannot delete another user's recipe");
   }
 
   await recipesServices.deleteOwnerRecipe({ id, owner });
