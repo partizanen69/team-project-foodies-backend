@@ -12,7 +12,6 @@ import {
   ValidateProp,
   validateIncomingPayload,
 } from '../helpers/middlewares/validate.middleware.js';
-import isValidMongoId from '../helpers/middlewares/isValidObjectId.js';
 
 const usersRouter = express.Router();
 
