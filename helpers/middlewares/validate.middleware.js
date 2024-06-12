@@ -1,6 +1,7 @@
 import toHttpError from '../HttpError.js';
 import Recipe from '../../db/recipe.model.js';
 import User from '../../db/users.model.js';
+import { isValidObjectId } from 'mongoose';
 
 export const ValidateProp = {
   body: 'body',
@@ -26,6 +27,11 @@ export const validateIncomingPayload = (
 export const validateAddFavoriteRecipe = async (req, _, next) => {
   const { _id: owner } = req.user;
   const { id } = req.params;
+
+  if (!isValidObjectId(id)) {
+    next(toHttpError(400, `${id} is not valid objectid`));
+    return;
+  }
 
   const user = await User.findById(owner);
   const recipe = await Recipe.findById(id);
