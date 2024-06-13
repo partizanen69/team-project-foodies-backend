@@ -86,7 +86,7 @@ const getUserDetails = async (req, res) => {
     recipesCount,
   };
 
-  if (targetUserId === req.user._id.toString()) {
+  if (targetUserId === req?.user?._id.toString()) {
     result.followingCount = user.following.length;
     result.favorites = user.favorites.length;
   }
