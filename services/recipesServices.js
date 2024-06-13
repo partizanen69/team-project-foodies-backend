@@ -59,6 +59,17 @@ export const getPopularRecipes = async () => {
       $limit: 10,
     },
     {
+      $lookup: {
+        from: 'users',
+        localField: 'owner',
+        foreignField: '_id',
+        as: 'owner',
+      },
+    },
+    {
+      $unwind: '$owner',
+    },
+    {
       $project: {
         favoritedBy: 0,
         popularity: 0,
