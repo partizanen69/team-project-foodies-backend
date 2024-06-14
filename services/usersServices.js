@@ -32,16 +32,26 @@ export const getOneUser = filter => {
   return UserModel.findOne(filter);
 };
 
-export const getManyUsersAndRecipesById = ({
+export const getManyUsersAndRecipesById = async ({
   id,
   followers,
   maxRecipesCount = 4,
   page,
   limit,
+  currentUserId,
 }) => {
   const searchedField = followers ? 'followers' : 'following';
 
   const convertedUserId = mongoose.Types.ObjectId.createFromHexString(id);
+  console.log(currentUserId);
+  const convertedCurrentUserId =
+    mongoose.Types.ObjectId.createFromHexString(currentUserId);
+
+  const numLimit = Number(limit);
+  const numPage = Number(page);
+  const user = await UserModel.findOne({ _id: convertedCurrentUserId });
+  const followingIds = user.following;
+  console.log(followingIds);
 
   return UserModel.aggregate([
     { $match: { _id: convertedUserId } },
@@ -68,6 +78,14 @@ export const getManyUsersAndRecipesById = ({
         _id: '$users._id',
         name: '$users.name',
         avatarURL: '$users.avatarURL',
+        isFollowing: {
+          $cond: {
+            if: { $in: ['$followedUsers._id', followingIds] },
+            then: true,
+            else: false,
+          },
+        },
+
         recipes: {
           $slice: ['$usersRecipes', maxRecipesCount],
         },
@@ -82,11 +100,13 @@ export const getManyUsersAndRecipesById = ({
         name: 1,
         avatarURL: 1,
         recipesCount: 1,
+        isFollowing: 1,
         recipes: {
           $map: {
             input: '$recipes',
             as: 'recipe',
             in: {
+              _id: '$$recipe._id',
               title: '$$recipe.title',
               category: '$$recipe.category',
               owner: '$$recipe.owner',
@@ -99,8 +119,8 @@ export const getManyUsersAndRecipesById = ({
       },
     },
   ])
-    .skip((page - 1) * limit)
-    .limit(limit);
+    .skip((numPage - 1) * numLimit)
+    .limit(numLimit);
 };
 
 export const updateUserById = (id, updatePayload) => {

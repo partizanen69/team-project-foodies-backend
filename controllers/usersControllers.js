@@ -120,6 +120,7 @@ const getFollowers = async (req, res) => {
     followers: true,
     page,
     limit,
+    currentUserId: user.id,
   });
 
   res.status(200).json({ followers, page, total: user.followers.length });
@@ -134,6 +135,7 @@ const getFollowing = async (req, res) => {
     followers: false,
     page,
     limit,
+    currentUserId: user.id,
   });
 
   res.status(200).json({ following, page, total: user.following.length });
