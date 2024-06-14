@@ -38,20 +38,13 @@ export const getManyUsersAndRecipesById = async ({
   maxRecipesCount = 4,
   page,
   limit,
-  currentUserId,
 }) => {
   const searchedField = followers ? 'followers' : 'following';
 
   const convertedUserId = mongoose.Types.ObjectId.createFromHexString(id);
-  console.log(currentUserId);
-  const convertedCurrentUserId =
-    mongoose.Types.ObjectId.createFromHexString(currentUserId);
 
   const numLimit = Number(limit);
   const numPage = Number(page);
-  const user = await UserModel.findOne({ _id: convertedCurrentUserId });
-  const followingIds = user.following;
-  console.log(followingIds);
 
   return UserModel.aggregate([
     { $match: { _id: convertedUserId } },
@@ -78,14 +71,6 @@ export const getManyUsersAndRecipesById = async ({
         _id: '$users._id',
         name: '$users.name',
         avatarURL: '$users.avatarURL',
-        isFollowing: {
-          $cond: {
-            if: { $in: ['$followedUsers._id', followingIds] },
-            then: true,
-            else: false,
-          },
-        },
-
         recipes: {
           $slice: ['$usersRecipes', maxRecipesCount],
         },
@@ -108,10 +93,7 @@ export const getManyUsersAndRecipesById = async ({
             in: {
               _id: '$$recipe._id',
               title: '$$recipe.title',
-              category: '$$recipe.category',
               owner: '$$recipe.owner',
-              area: '$$recipe.area',
-              time: '$$recipe.time',
               thumb: '$$recipe.thumb',
             },
           },
@@ -121,6 +103,36 @@ export const getManyUsersAndRecipesById = async ({
   ])
     .skip((numPage - 1) * numLimit)
     .limit(numLimit);
+};
+
+export const getFollowersAndRecipesById = async ({
+  id,
+  followers,
+  maxRecipesCount = 4,
+  page,
+  limit,
+  currentUserId,
+}) => {
+  const convertedCurrentUserId =
+    mongoose.Types.ObjectId.createFromHexString(currentUserId);
+
+  const [users, currentUser] = await Promise.all([
+    getManyUsersAndRecipesById({
+      id,
+      followers,
+      maxRecipesCount,
+      page,
+      limit,
+    }),
+    UserModel.findOne({ _id: convertedCurrentUserId }),
+  ]);
+
+  return users.map(user => {
+    return {
+      ...user,
+      isFollowing: currentUser.following.includes(user._id),
+    };
+  });
 };
 
 export const updateUserById = (id, updatePayload) => {
