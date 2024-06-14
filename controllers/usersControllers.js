@@ -128,10 +128,10 @@ const getFollowers = async (req, res) => {
 
 const getFollowing = async (req, res) => {
   const user = req.user;
-  const { page = 1, limit = 9, userId } = req.query;
+  const { page = 1, limit = 9 } = req.query;
 
   const following = await userService.getManyUsersAndRecipesById({
-    id: userId,
+    id: user._id,
     followers: false,
     page,
     limit,
