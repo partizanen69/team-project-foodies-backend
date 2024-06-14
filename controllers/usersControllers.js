@@ -113,10 +113,10 @@ const updateAvatar = async (req, res) => {
 
 const getFollowers = async (req, res) => {
   const user = req.user;
-  const { page = 1, limit = 9 } = req.query;
+  const { page = 1, limit = 9, userId } = req.query;
 
   const followers = await userService.getManyUsersAndRecipesById({
-    id: user._id,
+    id: userId,
     followers: true,
     page,
     limit,
@@ -127,10 +127,10 @@ const getFollowers = async (req, res) => {
 
 const getFollowing = async (req, res) => {
   const user = req.user;
-  const { page = 1, limit = 9 } = req.query;
+  const { page = 1, limit = 9, userId } = req.query;
 
   const following = await userService.getManyUsersAndRecipesById({
-    id: user._id,
+    id: userId,
     followers: false,
     page,
     limit,

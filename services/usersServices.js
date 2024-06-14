@@ -41,8 +41,10 @@ export const getManyUsersAndRecipesById = ({
 }) => {
   const searchedField = followers ? 'followers' : 'following';
 
+  const convertedUserId = mongoose.Types.ObjectId.createFromHexString(id);
+
   return UserModel.aggregate([
-    { $match: { _id: id } },
+    { $match: { _id: convertedUserId } },
     { $unwind: `$${searchedField}` },
     {
       $lookup: {
