@@ -15,6 +15,7 @@ import {
   getRecipeByIdSchema,
   addRecipeSchema,
   getFavoriteRecipeSchema,
+  getRecipesByUserIdSchema,
 } from '../schemas/recipeSchemas.js';
 
 const recipesRouter = express.Router();
@@ -71,6 +72,13 @@ recipesRouter.delete(
   authenticate,
   isValidMongoId,
   recipesController.deleteFavoriteRecipe
+);
+
+recipesRouter.get(
+  '/user-recipes',
+  authenticate,
+  validateIncomingPayload(getRecipesByUserIdSchema, ValidateProp.query),
+  recipesController.getRecipesByUserId
 );
 
 export default recipesRouter;
