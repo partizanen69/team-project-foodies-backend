@@ -20,9 +20,25 @@ export const resendVerificationEmailSchema = Joi.object({
   }),
 });
 
-export const getFollowersAndFollowingSchema = Joi.object({
+export const getFollowingSchema = Joi.object({
   page: Joi.number().min(1),
   limit: Joi.number().min(1),
+});
+
+export const getFollowersSchema = Joi.object({
+  page: Joi.number().min(1),
+  limit: Joi.number().min(1),
+  userId: Joi.string()
+    .custom((value, helpers) => {
+      if (!mongoose.Types.ObjectId.isValid(value)) {
+        return helpers.error('any.invalid');
+      }
+      return value;
+    }, 'ObjectId Validation')
+    .messages({
+      'any.invalid': 'Invalid following user ID format',
+    })
+    .required(),
 });
 
 export const addAndRemoveFollowingSchema = Joi.object({

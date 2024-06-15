@@ -79,6 +79,7 @@ const getUserDetails = async (req, res) => {
   }
 
   const result = {
+    id: targetUserId,
     name: user.name,
     email: user.email,
     avatarURL: user.avatarURL,
@@ -89,6 +90,10 @@ const getUserDetails = async (req, res) => {
   if (targetUserId === req?.user?._id.toString()) {
     result.followingCount = user.following.length;
     result.favorites = user.favorites.length;
+  } else {
+    result.isFollowing = req?.user?.following.some(uid => {
+      return targetUserId.toString() === uid.toString();
+    });
   }
 
   res.status(200).json({
@@ -113,13 +118,14 @@ const updateAvatar = async (req, res) => {
 
 const getFollowers = async (req, res) => {
   const user = req.user;
-  const { page = 1, limit = 9 } = req.query;
+  const { page = 1, limit = 9, userId } = req.query;
 
-  const followers = await userService.getManyUsersAndRecipesById({
-    id: user._id,
+  const followers = await userService.getFollowersAndRecipesById({
+    id: userId,
     followers: true,
     page,
     limit,
+    currentUserId: user.id,
   });
 
   res.status(200).json({ followers, page, total: user.followers.length });

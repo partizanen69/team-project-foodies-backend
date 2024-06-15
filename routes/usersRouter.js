@@ -2,7 +2,8 @@ import express from 'express';
 import userControllers from '../controllers/usersControllers.js';
 import {
   addAndRemoveFollowingSchema,
-  getFollowersAndFollowingSchema,
+  getFollowersSchema,
+  getFollowingSchema,
   loginUserSchema,
   registerUserSchema,
 } from '../schemas/usersSchemas.js';
@@ -46,14 +47,14 @@ usersRouter.patch(
 
 usersRouter.get(
   '/followers',
-  validateIncomingPayload(getFollowersAndFollowingSchema, ValidateProp.query),
+  validateIncomingPayload(getFollowersSchema, ValidateProp.query),
   authenticate,
   userControllers.getFollowers
 );
 
 usersRouter.get(
   '/following',
-  validateIncomingPayload(getFollowersAndFollowingSchema, ValidateProp.query),
+  validateIncomingPayload(getFollowingSchema, ValidateProp.query),
   authenticate,
   userControllers.getFollowing
 );

@@ -32,7 +32,7 @@ export const getOneUser = filter => {
   return UserModel.findOne(filter);
 };
 
-export const getManyUsersAndRecipesById = ({
+export const getManyUsersAndRecipesById = async ({
   id,
   followers,
   maxRecipesCount = 4,
@@ -40,6 +40,11 @@ export const getManyUsersAndRecipesById = ({
   limit,
 }) => {
   const searchedField = followers ? 'followers' : 'following';
+
+  console.log(id);
+
+  const numLimit = Number(limit);
+  const numPage = Number(page);
 
   return UserModel.aggregate([
     { $match: { _id: id } },
@@ -80,16 +85,15 @@ export const getManyUsersAndRecipesById = ({
         name: 1,
         avatarURL: 1,
         recipesCount: 1,
+        isFollowing: 1,
         recipes: {
           $map: {
             input: '$recipes',
             as: 'recipe',
             in: {
+              _id: '$$recipe._id',
               title: '$$recipe.title',
-              category: '$$recipe.category',
               owner: '$$recipe.owner',
-              area: '$$recipe.area',
-              time: '$$recipe.time',
               thumb: '$$recipe.thumb',
             },
           },
@@ -97,8 +101,39 @@ export const getManyUsersAndRecipesById = ({
       },
     },
   ])
-    .skip((page - 1) * limit)
-    .limit(limit);
+    .skip((numPage - 1) * numLimit)
+    .limit(numLimit);
+};
+
+export const getFollowersAndRecipesById = async ({
+  id,
+  followers,
+  maxRecipesCount = 4,
+  page,
+  limit,
+  currentUserId,
+}) => {
+  const convertedUserId = mongoose.Types.ObjectId.createFromHexString(id);
+  const convertedCurrentUserId =
+    mongoose.Types.ObjectId.createFromHexString(currentUserId);
+
+  const [users, currentUser] = await Promise.all([
+    getManyUsersAndRecipesById({
+      id: convertedUserId,
+      followers,
+      maxRecipesCount,
+      page,
+      limit,
+    }),
+    UserModel.findOne({ _id: convertedCurrentUserId }),
+  ]);
+
+  return users.map(user => {
+    return {
+      ...user,
+      isFollowing: currentUser.following.includes(user._id),
+    };
+  });
 };
 
 export const updateUserById = (id, updatePayload) => {
