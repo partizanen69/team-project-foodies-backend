@@ -52,6 +52,12 @@ recipesRouter.get(
 );
 
 recipesRouter.get(
+  '/user-recipes',
+  validateIncomingPayload(getRecipesByUserIdSchema, ValidateProp.query),
+  recipesController.getRecipesByUserId
+);
+
+recipesRouter.get(
   '/:id',
   isValidMongoId,
   validateIncomingPayload(getRecipeByIdSchema, ValidateProp.params),
@@ -72,13 +78,6 @@ recipesRouter.delete(
   authenticate,
   isValidMongoId,
   recipesController.deleteFavoriteRecipe
-);
-
-recipesRouter.get(
-  '/user-recipes',
-  authenticate,
-  validateIncomingPayload(getRecipesByUserIdSchema, ValidateProp.query),
-  recipesController.getRecipesByUserId
 );
 
 export default recipesRouter;

@@ -74,7 +74,7 @@ export const getRecipesByUserIdSchema = Joi.object({
       return value;
     }, 'ObjectId Validation')
     .messages({
-      'any.invalid': 'Invalid recipe ID format',
+      'any.invalid': 'owner ID format',
     })
     .required(),
 });
