@@ -28,7 +28,7 @@ const getRecipes = async (req, res) => {
       area,
       ingredients,
     }),
-    recipesServices.getAllRecipesCount(),
+    recipesServices.getFilteredRecipesCount({ category, area, ingredients }),
   ]);
 
   res.status(200).json({
