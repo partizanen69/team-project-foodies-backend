@@ -41,13 +41,13 @@ export const getManyUsersAndRecipesById = async ({
 }) => {
   const searchedField = followers ? 'followers' : 'following';
 
-  const convertedUserId = mongoose.Types.ObjectId.createFromHexString(id);
+  console.log(id);
 
   const numLimit = Number(limit);
   const numPage = Number(page);
 
   return UserModel.aggregate([
-    { $match: { _id: convertedUserId } },
+    { $match: { _id: id } },
     { $unwind: `$${searchedField}` },
     {
       $lookup: {
@@ -113,12 +113,13 @@ export const getFollowersAndRecipesById = async ({
   limit,
   currentUserId,
 }) => {
+  const convertedUserId = mongoose.Types.ObjectId.createFromHexString(id);
   const convertedCurrentUserId =
     mongoose.Types.ObjectId.createFromHexString(currentUserId);
 
   const [users, currentUser] = await Promise.all([
     getManyUsersAndRecipesById({
-      id,
+      id: convertedUserId,
       followers,
       maxRecipesCount,
       page,
