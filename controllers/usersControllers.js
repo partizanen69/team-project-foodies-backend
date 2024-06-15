@@ -79,6 +79,7 @@ const getUserDetails = async (req, res) => {
   }
 
   const result = {
+    id: targetUserId,
     name: user.name,
     email: user.email,
     avatarURL: user.avatarURL,
@@ -89,6 +90,10 @@ const getUserDetails = async (req, res) => {
   if (targetUserId === req?.user?._id.toString()) {
     result.followingCount = user.following.length;
     result.favorites = user.favorites.length;
+  } else {
+    result.isFollowing = req?.user?.following.some(uid => {
+      return targetUserId.toString() === uid.toString();
+    });
   }
 
   res.status(200).json({
