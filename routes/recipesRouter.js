@@ -15,6 +15,7 @@ import {
   getRecipeByIdSchema,
   addRecipeSchema,
   getFavoriteRecipeSchema,
+  getRecipesByUserIdSchema,
 } from '../schemas/recipeSchemas.js';
 
 const recipesRouter = express.Router();
@@ -48,6 +49,12 @@ recipesRouter.get(
   authenticate,
   validateIncomingPayload(getFavoriteRecipeSchema, ValidateProp.query),
   recipesController.getFavoriteRecipes
+);
+
+recipesRouter.get(
+  '/user-recipes',
+  validateIncomingPayload(getRecipesByUserIdSchema, ValidateProp.query),
+  recipesController.getRecipesByUserId
 );
 
 recipesRouter.get(

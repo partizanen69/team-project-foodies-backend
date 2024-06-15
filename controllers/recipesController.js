@@ -188,6 +188,38 @@ const deleteFavoriteRecipe = async (req, res) => {
   });
 };
 
+const getRecipesByUserId = async (req, res) => {
+  const {
+    page: _page = 1,
+    limit: _limit = 10,
+    category = null,
+    area = null,
+    ingredients = null,
+    owner,
+  } = req.query;
+
+  const page = Number(_page);
+  const limit = Number(_limit);
+
+  const [recipes, totalRecipes] = await Promise.all([
+    recipesServices.getMyRecipes({
+      page,
+      limit,
+      category,
+      area,
+      ingredients,
+      owner,
+    }),
+    recipesServices.getMyRecipesCount({ owner }),
+  ]);
+
+  res.status(200).json({
+    recipes,
+    page,
+    total: totalRecipes,
+  });
+};
+
 export default {
   getRecipes: toController(getRecipes),
   getOneRecipeById: toController(getOneRecipeById),
@@ -198,4 +230,5 @@ export default {
   deleteRecipe: toController(deleteRecipe),
   getFavoriteRecipes: toController(getFavoriteRecipes),
   deleteFavoriteRecipe: toController(deleteFavoriteRecipe),
+  getRecipesByUserId: toController(getRecipesByUserId),
 };

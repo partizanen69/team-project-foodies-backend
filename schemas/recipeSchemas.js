@@ -62,3 +62,21 @@ export const getFavoriteRecipeSchema = Joi.object({
   limit: Joi.number(),
   recipeIds: Joi.string(),
 });
+
+export const getRecipesByUserIdSchema = Joi.object({
+  page: Joi.number().min(1),
+  limit: Joi.number().min(1),
+  category: Joi.string(),
+  area: Joi.string(),
+  owner: Joi.string()
+    .custom((value, helpers) => {
+      if (!ObjectId.isValid(value)) {
+        return helpers.error('any.invalid');
+      }
+      return value;
+    }, 'ObjectId Validation')
+    .messages({
+      'any.invalid': 'owner ID format',
+    })
+    .required(),
+});
