@@ -1,7 +1,6 @@
 import Recipe from '../db/recipe.model.js';
 import User from '../db/users.model.js';
 import Area from '../db/area.model.js';
-import Ingredient from '../db/ingredient.model.js';
 import mongoose from 'mongoose';
 
 const ObjectId = mongoose.Types.ObjectId;
@@ -13,25 +12,15 @@ export const getRecipes = async ({
   area,
   ingredients,
 }) => {
-  // let ingredientName = null;
   let areaName = null;
   let ingredientId = null;
 
-  // Find area by _id and get its name
   if (area) {
     const areaDoc = await Area.findById(ObjectId.createFromHexString(area));
     if (areaDoc) {
       areaName = areaDoc.name;
     }
   }
-
-  // Find ingredient by _id and get its name
-  // if (ingredients) {
-  //   const ingredientDoc = await Ingredient.findById(ObjectId.createFromHexString(ingredients));
-  //   if (ingredientDoc) {
-  //     ingredientName = ingredientDoc.name;
-  //   }
-  // }
 
   if (ingredients) {
     ingredientId = ObjectId.createFromHexString(ingredients);
@@ -40,13 +29,44 @@ export const getRecipes = async ({
   const recipes = await Recipe.find({
     ...(category ? { category } : null),
     ...(areaName ? { area: areaName } : null),
-    // ...(ingredientName ? { ingredients: ingredientName } : null),
     ...(ingredientId ? { 'ingredients.id': ingredientId } : null),
   })
     .skip((page - 1) * limit)
     .limit(limit);
 
   return recipes;
+};
+
+export const getFilteredRecipesCount = async ({
+  category,
+  area,
+  ingredients,
+}) => {
+  let areaName = null;
+  let ingredientId = null;
+
+  if (area) {
+    const areaDoc = await Area.findById(ObjectId.createFromHexString(area));
+    if (areaDoc) {
+      areaName = areaDoc.name;
+    }
+  }
+
+  if (ingredients) {
+    ingredientId = ObjectId.createFromHexString(ingredients);
+  }
+
+  // Create the filter object
+  const filter = {
+    ...(category ? { category } : null),
+    ...(areaName ? { area: areaName } : null),
+    ...(ingredientId ? { 'ingredients.id': ingredientId } : null),
+  };
+
+  // Get the count of documents matching the filter
+  const count = await Recipe.countDocuments(filter);
+
+  return count;
 };
 
 export const getAllRecipesCount = async () => {
