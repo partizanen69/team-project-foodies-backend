@@ -26,13 +26,68 @@ export const getRecipes = async ({
     ingredientId = ObjectId.createFromHexString(ingredients);
   }
 
-  const recipes = await Recipe.find({
+  // const recipes = await Recipe.find({
+  //   ...(category ? { category } : null),
+  //   ...(areaName ? { area: areaName } : null),
+  //   // ...(ingredientName ? { ingredients: ingredientName } : null),
+  //   ...(ingredientId ? { 'ingredients.id': ingredientId } : null),
+  // })
+  //   .skip((page - 1) * limit)
+  //   .limit(limit);
+
+  const matchConditions = {
     ...(category ? { category } : null),
     ...(areaName ? { area: areaName } : null),
     ...(ingredientId ? { 'ingredients.id': ingredientId } : null),
-  })
-    .skip((page - 1) * limit)
-    .limit(limit);
+  };
+
+  const recipes = await Recipe.aggregate([
+    {
+      $match: matchConditions,
+    },
+    {
+      $lookup: {
+        from: 'users',
+        localField: '_id',
+        foreignField: 'favorites',
+        as: 'favoritedBy',
+      },
+    },
+    {
+      $addFields: {
+        popularity: { $size: '$favoritedBy' },
+      },
+    },
+    {
+      $sort: { popularity: -1 },
+    },
+    {
+      $limit: 10,
+    },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'owner',
+        foreignField: '_id',
+        as: 'owner',
+      },
+    },
+    {
+      $unwind: '$owner',
+    },
+    {
+      $project: {
+        favoritedBy: 0,
+        popularity: 0,
+      },
+    },
+    {
+      $skip: (page - 1) * limit,
+    },
+    {
+      $limit: limit,
+    },
+  ]);
 
   return recipes;
 };
