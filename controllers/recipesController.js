@@ -69,8 +69,6 @@ const addRecipe = async (req, res) => {
   await fs.rename(oldPath, newPath);
   const thumb = path.posix.join('public', 'recipeImages', filename);
 
-  console.log("thumb: ", thumb);
-
   const result = await recipesServices.createRecipe({
     ...recipeData,
     ingredients: parsedIngredients,
