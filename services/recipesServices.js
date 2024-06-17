@@ -26,15 +26,6 @@ export const getRecipes = async ({
     ingredientId = ObjectId.createFromHexString(ingredients);
   }
 
-  // const recipes = await Recipe.find({
-  //   ...(category ? { category } : null),
-  //   ...(areaName ? { area: areaName } : null),
-  //   // ...(ingredientName ? { ingredients: ingredientName } : null),
-  //   ...(ingredientId ? { 'ingredients.id': ingredientId } : null),
-  // })
-  //   .skip((page - 1) * limit)
-  //   .limit(limit);
-
   const matchConditions = {
     ...(category ? { category } : null),
     ...(areaName ? { area: areaName } : null),
@@ -60,9 +51,6 @@ export const getRecipes = async ({
     },
     {
       $sort: { popularity: -1 },
-    },
-    {
-      $limit: 10,
     },
     {
       $lookup: {
@@ -91,6 +79,7 @@ export const getRecipes = async ({
 
   return recipes;
 };
+
 
 export const getFilteredRecipesCount = async ({
   category,
