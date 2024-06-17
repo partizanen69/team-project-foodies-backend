@@ -21,15 +21,11 @@ export const getRecipes = async ({
       areaName = areaDoc.name;
     }
   }
-
-  if (ingredients) {
-    ingredientId = ObjectId.createFromHexString(ingredients);
-  }
-
+  
   const matchConditions = {
     ...(category ? { category } : null),
     ...(areaName ? { area: areaName } : null),
-    ...(ingredientId ? { 'ingredients.id': ingredientId } : null),
+    ...(ingredientId ? { 'ingredients.id': ingredients } : null),
   };
 
   const recipes = await Recipe.aggregate([
