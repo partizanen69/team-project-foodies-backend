@@ -13,7 +13,6 @@ export const getRecipes = async ({
   ingredients,
 }) => {
   let areaName = null;
-  let ingredientId = null;
 
   if (area) {
     const areaDoc = await Area.findById(ObjectId.createFromHexString(area));
@@ -25,7 +24,7 @@ export const getRecipes = async ({
   const matchConditions = {
     ...(category ? { category } : null),
     ...(areaName ? { area: areaName } : null),
-    ...(ingredientId ? { 'ingredients.id': ingredients } : null),
+    ...(ingredients ? { 'ingredients.id': ingredients } : null),
   };
 
   const recipes = await Recipe.aggregate([
