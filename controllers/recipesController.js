@@ -1,13 +1,10 @@
-import path from 'path';
-import fs from 'fs/promises';
 import * as recipesServices from '../services/recipesServices.js';
 import { toController } from '../utils/api.js';
 import toHttpError from '../helpers/HttpError.js';
 
 import mongoose from 'mongoose';
+import cloudinary from '../helpers/cloudinary.js';
 const ObjectId = mongoose.Types.ObjectId;
-
-const recipeImagesPath = path.resolve('public', 'recipeImages');
 
 const getRecipes = async (req, res) => {
   const {
@@ -63,16 +60,16 @@ const addRecipe = async (req, res) => {
   }
 
   const { _id: owner } = req.user;
-  const { path: oldPath, filename } = req.file;
+  const { path: imagePath } = req.file;
 
-  const newPath = path.join(recipeImagesPath, filename);
-  await fs.rename(oldPath, newPath);
-  const thumb = path.posix.join('public', 'recipeImages', filename);
+  const uploadResult = await cloudinary.uploader.upload(imagePath, {
+    folder: 'recipeImages',
+  });
 
   const result = await recipesServices.createRecipe({
     ...recipeData,
     ingredients: parsedIngredients,
-    thumb,
+    thumb: uploadResult.url,
     owner,
   });
 

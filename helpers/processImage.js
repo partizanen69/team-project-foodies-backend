@@ -1,10 +1,8 @@
 import fs from 'fs/promises';
-import path from 'path';
 import Jimp from 'jimp';
 import * as gravatar from 'gravatar';
 import HttpError from './HttpError.js';
-
-const publicDir = path.resolve('public');
+import cloudinary from './cloudinary.js';
 
 export const generateAvatar = email => {
   const avatarURL = gravatar.url(email, {
@@ -32,17 +30,13 @@ const adjustImage = async (imagePath, imageSize) => {
 };
 
 export const processImage = async (tmpPath, identifier, imageType) => {
-  console.log(tmpPath);
-  const extension = tmpPath.split('.').pop();
-  const relativePath = `${imageType}s/${identifier}-${imageType}.${extension}`;
-
-  const imagePath = path.join(publicDir, relativePath);
-
-  await fs.rename(tmpPath, imagePath);
-
   const imageSize = imageType === 'avatar' ? 250 : 550;
+  await adjustImage(tmpPath, imageSize);
 
-  await adjustImage(imagePath, imageSize);
+  const uploadResult = await cloudinary.uploader.upload(tmpPath, {
+    folder: 'avatars',
+  });
+  await fs.unlink(tmpPath);
 
-  return relativePath;
+  return uploadResult.url;
 };
