@@ -144,11 +144,13 @@ const getFavoriteRecipes = async (req, res) => {
   let recipeIds;
   if (_recipeIds) {
     try {
-      recipeIds = JSON.parse(_recipeIds).forEach(recipeId => {
+      recipeIds = JSON.parse(_recipeIds);
+
+      for (const recipeId of recipeIds) {
         if (!ObjectId.isValid(recipeId)) {
           throw new Error(`${recipeId} is not valid mongo object id`);
         }
-      });
+      }
     } catch (err) {
       throw toHttpError(400, `recipeIds is invalid: ${err.message}`);
     }
