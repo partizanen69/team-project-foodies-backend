@@ -20,7 +20,7 @@ export const getRecipes = async ({
       areaName = areaDoc.name;
     }
   }
-  
+
   const matchConditions = {
     ...(category ? { category } : null),
     ...(areaName ? { area: areaName } : null),
@@ -74,7 +74,6 @@ export const getRecipes = async ({
 
   return recipes;
 };
-
 
 export const getFilteredRecipesCount = async ({
   category,
@@ -260,20 +259,30 @@ export const listFavoriteRecipes = async ({
   owner,
   recipeIds,
 }) => {
-  const user = await User.findById(owner).populate({
-    path: 'favorites',
-    model: Recipe,
-    ...(recipeIds && recipeIds.length
-      ? { match: { _id: { $in: recipeIds.map(ObjectId.createFromHexString) } } }
-      : null),
-    options: {
-      skip: (page - 1) * limit,
-      limit: limit,
-    },
-  });
+  const [user, totalFavorites] = await Promise.all([
+    User.findById(owner).populate({
+      path: 'favorites',
+      model: Recipe,
+      ...(recipeIds && recipeIds.length
+        ? {
+            match: {
+              _id: { $in: recipeIds.map(ObjectId.createFromHexString) },
+            },
+          }
+        : null),
+      options: {
+        skip: (page - 1) * limit,
+        limit: limit,
+      },
+    }),
+    User.aggregate([
+      { $match: { _id: owner } }, // замініть userId на ідентифікатор користувача
+      { $project: { numberOfFavorites: { $size: '$favorites' } } },
+    ]),
+  ]);
 
   const favoriteRecipes = user.favorites;
-  const totalFavoriteRecipes = user.favorites.length;
+  const totalFavoriteRecipes = totalFavorites[0].numberOfFavorites;
 
   return { favoriteRecipes, totalFavoriteRecipes };
 };
