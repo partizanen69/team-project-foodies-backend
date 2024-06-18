@@ -14,7 +14,14 @@ const registerUser = async (req, res) => {
 
   const newUser = await userService.createUser({ name, email, password });
 
+  const token = createToken({
+    id: newUser._id,
+  });
+
+  await userService.updateUserById(newUser._id, { token });
+
   res.status(201).json({
+    token,
     user: {
       name: newUser.name,
       email: newUser.email,
