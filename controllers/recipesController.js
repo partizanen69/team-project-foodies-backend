@@ -133,7 +133,7 @@ const deleteRecipe = async (req, res) => {
     throw toHttpError(404, 'Recipe not found');
   }
 
-  if (recipe.owner.toString() !== owner.toString()) {
+  if (recipe.owner._id.toString() !== owner.toString()) {
     throw toHttpError(403, "You cannot delete another user's recipe");
   }
 
