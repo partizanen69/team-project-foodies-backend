@@ -1,0 +1,587 @@
+swagger: '2.0'
+info:
+  version: '1.0.0'
+  title: Foodies API
+  description: API documentation for Foodies project
+host: localhost:3000
+basePath: /api
+schemes:
+  - http
+  - https
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  /users/register:
+    post:
+      summary: Register user
+      description: Register a new user
+      parameters:
+        - in: body
+          name: body
+          schema:
+            $ref: '#/definitions/RegisterUser'
+      responses:
+        200:
+          description: User registered
+        400:
+          description: Bad request
+  /users/login:
+    post:
+      summary: Login user
+      description: Login an existing user
+      parameters:
+        - in: body
+          name: body
+          schema:
+            $ref: '#/definitions/LoginUser'
+      responses:
+        200:
+          description: User logged in
+        400:
+          description: Bad request
+  /users/logout:
+    post:
+      summary: Logout user
+      description: Logout the current user
+      responses:
+        200:
+          description: User logged out
+        401:
+          description: Unauthorized
+  /users/current:
+    get:
+      summary: Get current user
+      description: Get details of the current user
+      responses:
+        200:
+          description: User details
+          schema:
+            $ref: '#/definitions/User'
+        401:
+          description: Unauthorized
+  /users/user-details/{id}:
+    get:
+      summary: Get user details by ID
+      description: Get detailed information of a user by their ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+      responses:
+        200:
+          description: User details
+          schema:
+            $ref: '#/definitions/UserDetails'
+        401:
+          description: Unauthorized
+  /users/avatars:
+    patch:
+      summary: Update user avatar
+      description: Update the avatar of the current user
+      consumes:
+        - multipart/form-data
+      parameters:
+        - name: avatar
+          in: formData
+          required: true
+          type: file
+      responses:
+        200:
+          description: Avatar updated
+        400:
+          description: Bad request
+        401:
+          description: Unauthorized
+  /users/followers:
+    get:
+      summary: Get user followers
+      description: Get the list of followers for the current user
+      parameters:
+        - in: query
+          name: page
+          type: integer
+          description: Page number
+        - in: query
+          name: limit
+          type: integer
+          description: Number of items per page
+        - in: query
+          name: userId
+          type: string
+          required: true
+          description: User ID
+      responses:
+        200:
+          description: Followers list
+        401:
+          description: Unauthorized
+  /users/following:
+    get:
+      summary: Get user following
+      description: Get the list of users that the current user is following
+      parameters:
+        - in: query
+          name: page
+          type: integer
+          description: Page number
+        - in: query
+          name: limit
+          type: integer
+          description: Number of items per page
+      responses:
+        200:
+          description: Following list
+        401:
+          description: Unauthorized
+    post:
+      summary: Add user to following
+      description: Add a user to the following list of the current user
+      parameters:
+        - in: body
+          name: body
+          schema:
+            $ref: '#/definitions/AddAndRemoveFollowing'
+      responses:
+        200:
+          description: User added to following list
+        400:
+          description: Bad request
+        401:
+          description: Unauthorized
+    delete:
+      summary: Remove user from following
+      description: Remove a user from the following list of the current user
+      parameters:
+        - in: body
+          name: body
+          schema:
+            $ref: '#/definitions/AddAndRemoveFollowing'
+      responses:
+        200:
+          description: User removed from following list
+        400:
+          description: Bad request
+        401:
+          description: Unauthorized
+  /categories:
+    get:
+      summary: Get all categories
+      description: Returns a list of all categories
+      responses:
+        200:
+          description: A list of categories
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Category'
+        500:
+          description: Server error
+  /areas:
+    get:
+      summary: Get all areas
+      description: Returns a list of all areas
+      responses:
+        200:
+          description: A list of areas
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Area'
+        500:
+          description: Server error
+  /ingredients:
+    get:
+      summary: Get all ingredients
+      description: Returns a list of all ingredients
+      responses:
+        200:
+          description: A list of ingredients
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Ingredient'
+        500:
+          description: Server error
+  /testimonials:
+    get:
+      summary: Get all testimonials
+      description: Returns a list of all testimonials
+      responses:
+        200:
+          description: A list of testimonials
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Testimonial'
+        500:
+          description: Server error
+  /recipes:
+    get:
+      summary: Get all recipes
+      description: Returns a list of all recipes
+      parameters:
+        - in: query
+          name: page
+          type: integer
+          description: Page number
+        - in: query
+          name: limit
+          type: integer
+          description: Number of items per page
+        - in: query
+          name: category
+          type: string
+          description: Category of recipes
+        - in: query
+          name: area
+          type: string
+          description: Area of recipes
+        - in: query
+          name: ingredients
+          type: string
+          description: Ingredients in recipes
+      responses:
+        200:
+          description: A list of recipes
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Recipe'
+        500:
+          description: Server error
+    post:
+      summary: Add a new recipe
+      description: Add a new recipe
+      consumes:
+        - multipart/form-data
+      parameters:
+        - name: thumb
+          in: formData
+          required: true
+          type: file
+        - in: body
+          name: body
+          schema:
+            $ref: '#/definitions/AddRecipe'
+      responses:
+        200:
+          description: Recipe added
+        400:
+          description: Bad request
+        401:
+          description: Unauthorized
+  /recipes/popular:
+    get:
+      summary: Get popular recipes
+      description: Returns a list of popular recipes
+      responses:
+        200:
+          description: A list of popular recipes
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Recipe'
+        500:
+          description: Server error
+  /recipes/favorites:
+    get:
+      summary: Get favorite recipes
+      description: Returns a list of favorite recipes of the current user
+      parameters:
+        - in: query
+          name: page
+          type: integer
+          description: Page number
+        - in: query
+          name: limit
+          type: integer
+          description: Number of items per page
+        - in: query
+          name: recipeIds
+          type: string
+          description: Recipe IDs
+      responses:
+        200:
+          description: A list of favorite recipes
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Recipe'
+        401:
+          description: Unauthorized
+  /recipes/user-recipes:
+    get:
+      summary: Get recipes by user ID
+      description: Returns a list of recipes created by a specific user
+      parameters:
+        - in: query
+          name: userId
+          type: string
+          required: true
+      responses:
+        200:
+          description: A list of recipes by user
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Recipe'
+        400:
+          description: Bad request
+  /recipes/{id}:
+    get:
+      summary: Get recipe by ID
+      description: Returns a single recipe by its ID
+      parameters:
+        - name: _id
+          in: path
+          required: true
+          type: string
+      responses:
+        200:
+          description: Recipe details
+          schema:
+            $ref: '#/definitions/Recipe'
+        400:
+          description: Bad request
+    delete:
+      summary: Delete recipe by ID
+      description: Deletes a single recipe by its ID
+      parameters:
+        - name: _id
+          in: path
+          required: true
+          type: string
+      responses:
+        200:
+          description: Recipe deleted
+        400:
+          description: Bad request
+        401:
+          description: Unauthorized
+definitions:
+  RegisterUser:
+    type: object
+    required:
+      - name
+      - email
+      - password
+    properties:
+      name:
+        type: string
+      email:
+        type: string
+      password:
+        type: string
+  LoginUser:
+    type: object
+    required:
+      - email
+      - password
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+  User:
+    type: object
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      email:
+        type: string
+      avatarUrl:
+        type: string
+  UserDetails:
+    type: object
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      email:
+        type: string
+      avatarUrl:
+        type: string
+      followersCount:
+        type: integer
+      recipesCount:
+        type: integer
+  AddAndRemoveFollowing:
+    type: object
+    required:
+      - userId
+    properties:
+      userId:
+        type: string
+  Category:
+    type: object
+    properties:
+      _id:
+        type: string
+      imgUrl:
+        type: string
+      name:
+        type: string
+  Area:
+    type: object
+    properties:
+      _id:
+        type: string
+      name:
+        type: string
+  Ingredient:
+    type: object
+    properties:
+      _id:
+        type: string
+      name:
+        type: string
+      desc:
+        type: string
+      img:
+        type: string
+  Testimonial:
+    type: object
+    properties:
+      id:
+        type: string
+      owner:
+        type: object
+        properties:
+          id:
+            type: string
+          name:
+            type: string
+          avatar:
+            type: string
+          email:
+            type: string
+          followers:
+            type: array
+            items:
+              type: string
+          following:
+            type: array
+            items:
+              type: string
+          avatarURL:
+            type: string
+          updatedAt:
+            type: string
+      testimonial:
+        type: string
+  Recipe:
+    type: object
+    properties:
+      _id:
+        type: string
+      title:
+        type: string
+      category:
+        type: string
+      owner:
+        type: object
+        properties:
+          id:
+            type: string
+          name:
+            type: string
+          avatar:
+            type: string
+          email:
+            type: string
+          followers:
+            type: array
+            items:
+              type: string
+          following:
+            type: array
+            items:
+              type: string
+          avatarURL:
+            type: string
+          updatedAt:
+            type: string
+            format: date-time
+      area:
+        type: string
+      instructions:
+        type: string
+      description:
+        type: string
+      thumb:
+        type: string
+      time:
+        type: string
+      ingredients:
+        type: array
+        items:
+          type: object
+          properties:
+            id:
+              type: string
+            measure:
+              type: string
+      createdAt:
+        type: string
+        format: date-time
+      updatedAt:
+        type: string
+        format: date-time
+  AddRecipe:
+    type: object
+    required:
+      - title
+      - category
+      - area
+      - instructions
+      - description
+      - time
+      - ingredients
+    properties:
+      title:
+        type: string
+      category:
+        type: string
+      area:
+        type: string
+      instructions:
+        type: string
+      description:
+        type: string
+      time:
+        type: string
+      ingredients:
+        type: array
+        items:
+          type: string
+      thumb:
+        type: string
+  RecipeDetails:
+    type: object
+    properties:
+      _id:
+        type: string
+      name:
+        type: string
+      category:
+        type: string
+      area:
+        type: string
+      ingredients:
+        type: array
+        items:
+          type: string
+      thumb:
+        type: string
+      instructions:
+        type: string
+      tags:
+        type: array
+        items:
+          type: string
